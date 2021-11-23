@@ -307,6 +307,13 @@ void Getpower_be(struct platform_device *pdev)
     return;
 }
 
+void Getpower_0x1000000e(struct platform_device *pdev)
+{
+    /*A5 added power domain, it will get domain power when prob*/
+    set_clock(pdev);
+    return;
+}
+
 /* Downpower: disable nna power for platform */
 
 void Downpower_88(struct platform_device *pdev)
@@ -343,6 +350,13 @@ void Downpower_a1(struct platform_device *pdev)
 void Downpower_be(struct platform_device *pdev)
 {
     /*C2 added power domain, it will down domain power when rmmod */
+    put_clock(pdev);
+    return;
+}
+
+void Downpower_0x1000000e(struct platform_device *pdev)
+{
+    /*A5 added power domain, it will down domain power when rmmod */
     put_clock(pdev);
     return;
 }
@@ -436,6 +450,22 @@ void Runtime_downpower_be(struct platform_device *pdev)
     pm_runtime_disable(&pdev->dev);
     clk_switch(0);
 }
+void Runtime_getpower_0x1000000e(struct platform_device *pdev)
+{
+    int ret;
+
+    pm_runtime_enable(&pdev->dev);
+    ret = pm_runtime_get_sync(&pdev->dev);
+    if (ret < 0) printk("===runtime getpower error===\n");
+    clk_switch(1);
+}
+void Runtime_downpower_0x1000000e(struct platform_device *pdev)
+{
+
+    pm_runtime_put_sync(&pdev->dev);
+    pm_runtime_disable(&pdev->dev);
+    clk_switch(0);
+}
 gceSTATUS _GetPower(IN gcsPLATFORM *Platform)
 {
     struct platform_device *pdev = Platform->device;
@@ -460,6 +490,10 @@ gceSTATUS _GetPower(IN gcsPLATFORM *Platform)
         case 5:
             nanoqFreq=852*1024*1024;
             Getpower_be(pdev);
+            break;
+        case 6:
+            nanoqFreq=800*1024*1024;
+            Getpower_0x1000000e(pdev);
             break;
         default:
             printk("not find power_version\n");
@@ -490,6 +524,9 @@ gceSTATUS  _SetPower(IN gcsPLATFORM * Platform,IN gceCORE GPU,IN gctBOOL Enable)
             case 5:
                 Runtime_downpower_be(pdev);
                 break;
+            case 6:
+                Runtime_downpower_0x1000000e(pdev);
+                break;
             default:
                 printk("not find power_version\n");
                 break;
@@ -518,6 +555,10 @@ gceSTATUS  _SetPower(IN gcsPLATFORM * Platform,IN gceCORE GPU,IN gctBOOL Enable)
                 break;
             case 5:
                 Runtime_getpower_be(pdev);
+                mdelay(1);
+                break;
+            case 6:
+                Runtime_getpower_0x1000000e(pdev);
                 mdelay(1);
                 break;
             default:
@@ -560,6 +601,11 @@ gceSTATUS _Reset(IN gcsPLATFORM * Platform, IN gceCORE GPU)
             mdelay(10);
             Runtime_getpower_be(pdev);
             break;
+        case 6:
+            Runtime_downpower_0x1000000e(pdev);
+            mdelay(10);
+            Runtime_getpower_0x1000000e(pdev);
+            break;
         default:
             printk("not find power_version\n");
             break;
@@ -597,6 +643,9 @@ gceSTATUS _DownPower(IN gcsPLATFORM *Platform)
         case 5:
             Downpower_be(pdev);
             break;
+        case 6:
+            Downpower_0x1000000e(pdev);
+            break;
         default:
             printk("not find power_version\n");
             break;
@@ -631,6 +680,9 @@ gceSTATUS _SetPolicy(IN gcsPLATFORM *Platform,IN gctUINT32  powerLevel)
             break;
         case 5:
             nanoqFreq=852*1024*1024;
+            break;
+        case 6:
+            nanoqFreq=800*1024*1024;
             break;
         default:
             nanoqFreq=800000000;

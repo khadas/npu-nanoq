@@ -24,6 +24,7 @@ extern "C" {
 #define SUPPORT_NET_NUM             60
 #define ADDRESS_MAX_NUM             16
 #define MAX_TENSOR_NUM_DIMS         6
+#define INPUT_META_NUM              1
 
 ///////////////////////////////////////////////////////////////
 
@@ -175,7 +176,8 @@ typedef enum {
     AML_PROFILE_MEMORY       = 3,
     AML_PERLAYER_RUNTIME     = 4,
     AML_PERLAYER_BANDWIDTH   = 5,
-    AML_PERLAYER_OUTPUT      = 6
+    AML_PERLAYER_OUTPUT      = 6,
+    AML_PERLAYER_INPUT       = 7
 } aml_profile_type_t;
 
 typedef enum {
@@ -247,7 +249,8 @@ typedef struct
     float mean[INPUT_CNANNEL];
     float scale;
     aml_input_format_t input_format;
-    int int16_type ;
+    int int16_type;
+    int preprocess_debug;
 }input_info;
 
 typedef struct __nn_input
@@ -342,7 +345,8 @@ int  aml_util_setProfile(aml_profile_type_t type,const char *savepath); /*===set
 int  aml_util_setPowerPolicy(aml_policy_type_t type); /*===set power policy===*/
 int  aml_util_getHardwareStatus(int* customID,int *powerStatus,int* version); /*===get hardware info===*/
 int  aml_util_setAutoSuspend(int timeout);  /*===get hardware info===*/
-int aml_get_hardware_type(void);
+int  aml_get_hardware_type(void);
+char*  aml_util_get_version(void);
 
 #ifdef __cplusplus
 } //extern "C"
