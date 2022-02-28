@@ -59,6 +59,7 @@ arm-fsl)
     export FIXED_ARCH_TYPE=$1
 
 	export KERNEL_DIR=$2
+	export COMMON_DRIVERS_DIR=common_drivers
     export CROSS_COMPILE=$CROSS
 	export TOOLCHAIN=$fstr/bin
 	export LIB_DIR=$fstr/libc/lib
