@@ -6,10 +6,9 @@ set -e
 # establish build environment and build options value
 # Please modify the following items according your build environment
 
-ARCH=arm-fsl
-#if [ ! -z $1 ]; then
-#    ARCH=$1
-#fi
+if [ ! -z $1 ]; then
+    ARCH=$1
+fi
 
 PCROSS_TOOL_PATH=$3
 CROSS=${PCROSS_TOOL_PATH##*/}
@@ -17,6 +16,7 @@ fstr=${PCROSS_TOOL_PATH%/*}
 fstr=${fstr%/*}
 
 echo "====cross"=$CROSS
+echo "====ARCH"=$ARCH
 
 export AQROOT=`pwd`
 export AQARCH=$AQROOT/arch/XAQ2
@@ -26,32 +26,22 @@ export SDK_DIR=$AQROOT/build/sdk
 case "$ARCH" in
 
 arm)
-    export ARCH_TYPE=$ARCH
-    export CPU_TYPE=arm920
-    export FIXED_ARCH_TYPE=arm
+    ARCH=arm
+    export ARCH_TYPE=arm
+    export CPU_TYPE=cortex-a9
+    export CPU_ARCH=armv7-a
+    export FIXED_ARCH_TYPE=$1
 
-    export KERNEL_DIR=/home/software/Linux/linux-2.6.21-arm1
-    export CROSS_COMPILE=arm-none-linux-gnueabi-
-    export TOOLCHAIN=/home/software/Linux/toolchain
-    export LIB_DIR=$TOOLCHAIN/arm-none-linux-gnueabi/libc/usr/lib
+    export KERNEL_DIR=$2
+    export COMMON_DRIVERS_DIR=common_drivers
+    export CROSS_COMPILE=$CROSS
+    export TOOLCHAIN=$fstr/bin
+    export LIB_DIR=$fstr/libc/lib
+    export PATH=$TOOLCHAIN:$PATH
 ;;
 
-arm-amlogic)
-    ARCH=arm64
-    export ARCH_TYPE=$ARCH
-    export CPU_TYPE=cortex-a53
-    export CPU_ARCH=armv8-a
-    export FIXED_ARCH_TYPE=arm64
 
-	export KERNEL_DIR=/mnt/fileroot/xingwei.zhou/work/test_buildroot/output/mesong12b_w400_release/build/linux-amlogic-4.9-dev
-    export CROSS_COMPILE=aarch64-linux-gnu-
-	export TOOLCHAIN=/mnt/fileroot/xingwei.zhou/work/test_buildroot/toolchain/gcc/linux-x86/aarch64/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-linux-gnu/bin
-	export LIB_DIR=/mnt/fileroot/xingwei.zhou/work/test_buildroot/toolchain/gcc/linux-x86/aarch64/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-linux-gnu/aarch64-linux-gnu/libc/lib
-	export PATH=/mnt/fileroot/xingwei.zhou/work/test_buildroot/toolchain/gcc/linux-x86/aarch64/gcc-linaro-6.3.1-2017.02-x86_64_aarch64-linux-gnu/bin:$PATH
-
-;;
-
-arm-fsl)
+arm64)
     ARCH=arm64
     export ARCH_TYPE=arm64
     export CPU_TYPE=cortex-a53

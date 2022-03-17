@@ -1397,7 +1397,7 @@ static int gc_chipinfo_write(const char __user *ubuf, size_t count, void* data)
 		}
 		else
 		{
-			printk("count number not support:%ld\n",count);
+			printk("count number not support:%zu\n",count);
 		}
 	}
 	else
