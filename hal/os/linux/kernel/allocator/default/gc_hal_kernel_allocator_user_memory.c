@@ -175,6 +175,8 @@ static int import_page_map(gckOS Os, struct um_desc *um,
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 9, 0) && LINUX_VERSION_CODE < KERNEL_VERSION(4, 10, 0)
     result = get_user_pages_longterm(
+#elif LINUX_VERSION_CODE > KERNEL_VERSION(5, 6, 0)
+    result = pin_user_pages(
 #else
     result = get_user_pages(
 #endif
@@ -203,7 +205,11 @@ static int import_page_map(gckOS Os, struct um_desc *um,
         {
             if (pages[i])
             {
+#if LINUX_VERSION_CODE > KERNEL_VERSION(5, 6, 0)
+                unpin_user_page(um->pages[i]);
+#else
                 put_page(pages[i]);
+#endif
             }
         }
 
@@ -719,7 +725,11 @@ static void release_page_map(gckOS Os, struct um_desc *um)
              SetPageDirty(um->pages[i]);
         }
 
+#if LINUX_VERSION_CODE > KERNEL_VERSION(5, 6, 0)
+        unpin_user_page(um->pages[i]);
+#else
         put_page(um->pages[i]);
+#endif
     }
 
     kfree(um->pages);
