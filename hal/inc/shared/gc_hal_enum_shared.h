@@ -783,6 +783,7 @@ typedef enum _gceFEATURE
     gcvFEATURE_BIT_TP_SPECIAL_LIST_PARSER_FIX, /* 2365 */
 
     gcvFEATURE_2D_STRETCH_MULTISOURCE_PIPE,/* move stretchblit pipe line to multisource blit */
+    gcvFEATURE_BIT_NN_1ST_AND_2ND_INIMAGE_RAISE_VIPSRAM_RD_UPDATE_AT_SAME_TIME_PHASE2_FIX,
 
     /* Insert features above this comment only. */
     gcvFEATURE_COUNT                /* Not a feature. */
