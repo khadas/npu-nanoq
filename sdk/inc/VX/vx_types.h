@@ -304,11 +304,48 @@ typedef struct _vx_tensor_view_t * vx_tensor_view;
 */
 typedef struct _vx_tensor_addressing_t  * vx_tensor_addressing;
 
+/*!
+ * \brief The addressing image patch structure is used by the Host only
+ * to address pixels in an image patch. The fields of the structure are defined as:
+ * \arg dim - The dimensions of the image in logical pixel units in the x & y direction.
+ * \arg stride - The physical byte distance from a logical pixel to the next
+ * logically adjacent pixel in the positive x or y direction.
+ * \arg scale - The relationship of scaling from the primary plane (typically
+ * the zero indexed plane) to this plane. An integer down-scaling factor of \f$ f \f$ shall be
+ * set to a value equal to \f$ scale = \frac{unity}{f} \f$ and an integer up-scaling factor of \f$ f \f$
+ * shall be set to a value of \f$ scale = unity * f \f$. \f$ unity \f$ is defined as <tt>\ref VX_SCALE_UNITY</tt>.
+ * \arg step - The step is the number of logical pixel units to skip to
+ * arrive at the next physically unique pixel. For example, on a plane that is
+ * half-scaled in a dimension, the step in that dimension is 2 to indicate that
+ * every other pixel in that dimension is an alias. This is useful in situations
+ * where iteration over unique pixels is required, such as in serializing
+ * or de-serializing the image patch information.
+ * \see <tt>\ref vxMapImagePatch</tt>
+ * \ingroup group_image
+ */
+typedef struct _vx_tensorpatch_addressing_t {
+    vx_uint32 num_of_dims;    /*!< \brief Width of patch in X dimension in pixels. */
+    vx_size   *dim_sizes;     /*!< \brief Pointer to dimensions array */
+    vx_size   *strides;       /*!< \brief Pointer to strides array */
+    vx_uint16 stride_x_bits; /*!< \brief Stride in X dimension in bits. Used when stride_x is not an integer number of bytes. */
+} vx_tensorpatch_addressing_t;
+
+/*! \brief The addressing of a tensor patch structure is used by the Host only
+* to address elements in a tensor view patch.
+* \see <tt>\ref vxCopyTensorPatch2</tt>
+* \ingroup group_tensor
+*/
+typedef struct _vx_tensorpatch_addressing_t * vx_trensor_addressing;
+
 /*! \brief The weight bias parameter for fused layers
  * \ingroup group_cnn
  */
 typedef struct _vx_weights_biases_parameter_s *     vx_weights_biases_parameter;
 
+/*! \brief The object for stream processor
+ * \ingroup group_spinst
+ */
+typedef struct _vx_spinst_s *     vx_spinst;
 
 /*! \brief A Boolean value.
  * This allows 0 to be FALSE, as it is in C, and any non-zero to be TRUE.
@@ -437,6 +474,9 @@ enum vx_type_e {
     /* \todo add new object types here */
     VX_TYPE_BFLOAT16        = 0x81A,/*!< \brief A <tt>\ref vx_bfloat16</tt>. */
 
+    VX_TYPE_SPINST          = 0x81B,/*!< \brief A <tt>\ref vx_spinst</tt>. */
+    VX_TYPE_INT4            = 0x81C,/*!< \brief A <tt>\ref signed 4bits tensor.</tt>. */
+    VX_TYPE_UINT4           = 0x81D,/*!< \brief A <tt>\ref unsigned 4bits tensor.</tt>. */
 };
 
 /*! \brief The enumeration of all status codes.
@@ -444,6 +484,11 @@ enum vx_type_e {
  * \ingroup group_basic_features
  */
 enum vx_status_e {
+    VX_ERROR_VENDOR_VSI_END             = -2000, /*!< \brief A vendor defined error status end base. */
+    /* add new error here*/
+    VX_ERROR_CANCEL_JOB                 = -1001, /*!< \brief Indicates that a VIP job was cancelled. */
+    VX_ERROR_VENDOR_VSI_START           = -1000, /*!< \brief A vendor defined error status start base. */
+
     VX_STATUS_MIN                       = -25,/*!< \brief Indicates the lower bound of status codes in VX. Used for bounds checks only. */
     /* add new codes here */
     VX_ERROR_REFERENCE_NONZERO          = -24,/*!< \brief Indicates that an operation did not complete due to a reference count being non-zero. */
@@ -718,6 +763,8 @@ enum vx_graph_state_e {
    VX_GRAPH_STATE_ABANDONED = VX_ENUM_BASE(VX_ID_KHRONOS, VX_ENUM_GRAPH_STATE) + 0x3,
    /*! \brief The graph execution is completed and the graph is not scheduled for execution */
    VX_GRAPH_STATE_COMPLETED = VX_ENUM_BASE(VX_ID_KHRONOS, VX_ENUM_GRAPH_STATE) + 0x4,
+   /*! \brief The graph execution was cancelled */
+   VX_GRAPH_STATE_CANCELLED = VX_ENUM_BASE(VX_ID_KHRONOS, VX_ENUM_GRAPH_STATE) + 0x5,
 };
 
 /*! \brief The graph attributes list.
@@ -978,6 +1025,8 @@ enum vx_node_attribute_e {
     VX_NODE_VALID_RECT_RESET = VX_ATTRIBUTE_BASE(VX_ID_KHRONOS, VX_TYPE_NODE) + 0x8,
 
     VX_NODE_ATTRIBUTE_CONST_TENSOR_CACHE = VX_ATTRIBUTE_BASE(VX_ID_KHRONOS, VX_TYPE_NODE) + 0x9,
+
+    VX_NODE_ATTRIBUTE_FOR_HW_QUALITY     = VX_ATTRIBUTE_BASE(VX_ID_KHRONOS, VX_TYPE_NODE) + 0xA,
 
 };
 
@@ -1248,6 +1297,9 @@ enum vx_tensor_attribute_e
     VX_TENSOR_LIFETIME = VX_ATTRIBUTE_BASE(VX_ID_VIVANTE, VX_TYPE_TENSOR) + 0x5,
     /*! \brief the value status of tensor. */
     VX_TENSOR_VALUE = VX_ATTRIBUTE_BASE(VX_ID_VIVANTE, VX_TYPE_TENSOR) + 0x6,
+    /*XiaoMi project*/
+    VX_TENSOR_INPUT_FOR_REFERENCE = VX_ATTRIBUTE_BASE(VX_ID_VIVANTE, VX_TYPE_TENSOR) + 0x7,
+    VX_TENSOR_MEMORY_ATTRIBUTE = VX_ATTRIBUTE_BASE(VX_ID_VIVANTE, VX_TYPE_TENSOR) + 0x8,
 };
 
 /*! \brief The meta valid rectangle attributes.

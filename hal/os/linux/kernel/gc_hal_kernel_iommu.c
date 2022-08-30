@@ -2,7 +2,7 @@
 *
 *    The MIT License (MIT)
 *
-*    Copyright (c) 2014 - 2021 Vivante Corporation
+*    Copyright (c) 2014 - 2022 Vivante Corporation
 *
 *    Permission is hereby granted, free of charge, to any person obtaining a
 *    copy of this software and associated documentation files (the "Software"),
@@ -26,7 +26,7 @@
 *
 *    The GPL License (GPL)
 *
-*    Copyright (C) 2014 - 2021 Vivante Corporation
+*    Copyright (C) 2014 - 2022 Vivante Corporation
 *
 *    This program is free software; you can redistribute it and/or
 *    modify it under the terms of the GNU General Public License
@@ -62,18 +62,14 @@
 #define _GC_OBJ_ZONE gcvZONE_OS
 
 void
-gckIOMMU_Destory(
-    IN gckOS Os,
-    IN gckIOMMU Iommu
-    )
+gckIOMMU_Destory(IN gckOS Os, IN gckIOMMU Iommu)
 {
     gcmkHEADER_ARG("Os=%p Iommu=%p", Os, Iommu);
 
-    if (Iommu)
-    {
-        if (Iommu->paddingPageDmaHandle)
-        {
-            dma_unmap_page(Iommu->device, Iommu->paddingPageDmaHandle, PAGE_SIZE, DMA_FROM_DEVICE);
+    if (Iommu) {
+        if (Iommu->paddingPageDmaHandle) {
+            dma_unmap_page(Iommu->device, Iommu->paddingPageDmaHandle,
+                           PAGE_SIZE, DMA_FROM_DEVICE);
         }
 
         gcmkOS_SAFE_FREE(Os, Iommu);
@@ -83,61 +79,50 @@ gckIOMMU_Destory(
 }
 
 gceSTATUS
-gckIOMMU_Construct(
-    IN gckOS Os,
-    OUT gckIOMMU * Iommu
-    )
+gckIOMMU_Construct(IN gckOS Os, OUT gckIOMMU *Iommu)
 {
-    gceSTATUS status = gcvSTATUS_OK;
-    gckIOMMU iommu = gcvNULL;
-    struct device *dev;
-    dma_addr_t dmaHandle;
-    gctUINT64 phys;
-    struct iommu_domain * domain;
-    gctUINT32 gfp = GFP_KERNEL;
+    gceSTATUS            status = gcvSTATUS_OK;
+    gckIOMMU             iommu  = gcvNULL;
+    struct device       *dev;
+    dma_addr_t           dmaHandle;
+    gctUINT64            phys;
+    struct iommu_domain *domain;
+    gctUINT32            gfp = GFP_KERNEL;
 
     gcmkHEADER_ARG("Os=%p", Os);
 
-    dev = &Os->device->platform->device->dev;
+    dev    = &Os->device->platform->device->dev;
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 2, 0)
     domain = iommu_get_domain_for_dev(dev);
 #else
     domain = gcvNULL;
 #endif
 
-    if (domain)
-    {
+    if (domain) {
         struct page *page;
 
         page = alloc_page(gfp);
         if (!page)
-        {
             gcmkONERROR(gcvSTATUS_OUT_OF_MEMORY);
-        }
 
         phys = page_to_phys(page);
 
         dmaHandle = dma_map_page(dev, page, 0, PAGE_SIZE, DMA_TO_DEVICE);
 
         if (dmaHandle)
-        {
             dma_unmap_page(dev, dmaHandle, PAGE_SIZE, DMA_FROM_DEVICE);
-        }
 
         __free_page(page);
 
         /* Iommu bypass */
-        if (phys == dmaHandle)
-        {
+        if (phys == dmaHandle) {
             *Iommu = gcvNULL;
 
             gcmkFOOTER();
             return status;
         }
-    }
-    /* Don't enable iommu */
-    else
-    {
+    } else {
+        /* Don't enable iommu */
         *Iommu = gcvNULL;
 
         gcmkFOOTER();
@@ -148,9 +133,9 @@ gckIOMMU_Construct(
 
     gckOS_ZeroMemory(iommu, gcmSIZEOF(gcsIOMMU));
 
-    if (Os->paddingPage)
-    {
-        iommu->paddingPageDmaHandle = dma_map_page(dev, Os->paddingPage, 0, PAGE_SIZE, DMA_TO_DEVICE);
+    if (Os->paddingPage) {
+        iommu->paddingPageDmaHandle =
+            dma_map_page(dev, Os->paddingPage, 0, PAGE_SIZE, DMA_TO_DEVICE);
     }
 
     iommu->domain = domain;
@@ -161,9 +146,7 @@ gckIOMMU_Construct(
     gcmkPRINT("[galcore]: Enable IOMMU\n");
 OnError:
     if (gcmIS_ERROR(status))
-    {
         gckIOMMU_Destory(Os, iommu);
-    }
 
     gcmkFOOTER();
     return status;

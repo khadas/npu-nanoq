@@ -3,9 +3,21 @@ Files layout
 ============
 <AQROOT>/
     |
+    +---driver
+    |    |
+    |    +---khronos
+    |    |    |
+    |    |    +---libCL30            : OpenCL 3.0 driver
+    |    |    |
+    |    |    \---libOpenVX          : OpenVX 1.x driver
+    |
     +----compiler
     |    |
-    |    \---libVSC                  : compiler backend
+    |    +---libVSC                  : compiler backend
+    |    |
+    |    +---libCLC                  : compiler CL C frontend
+    |    |
+    |    \---libSPIRV                : compiler SPIRV frontend
     |
     +---hal
     |    |

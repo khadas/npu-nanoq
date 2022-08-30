@@ -1,6 +1,6 @@
 ##############################################################################
 #
-#    Copyright (c) 2005 - 2021 by Vivante Corp.  All rights reserved.
+#    Copyright (c) 2005 - 2022 by Vivante Corp.  All rights reserved.
 #
 #    The material in this file is confidential and contains trade secrets
 #    of Vivante Corporation. This is proprietary information owned by
@@ -41,6 +41,8 @@ VIVANTE_ENABLE_3D   ?= 1
 VIVANTE_NO_GL4      ?= 0
 VIVANTE_NO_VG       ?= 0
 VIVANTE_ENABLE_APBFE   ?= 0
+VIVANTE_ENABLE_40BITS_VA ?= 0
+VIVANTE_ENABLE_DEV_BUILD ?= 0
 
 LINUX_EMULATOR      ?= 0
 LINUX_VSIMULATOR    ?= 0
@@ -79,6 +81,7 @@ SOC_PLATFORM        ?= default
 
 GPU_CONFIG          ?= default
 USE_VXC_BINARY      ?= 0
+USE_VXC_EMBEDDED    ?= 0
 
 USE_VSC_LITE        ?= 0
 
@@ -149,6 +152,7 @@ PFLAGS              := $(ORIG_PFLAGS)
 ################################################################
 # Toolchain.
 
+ifneq ($(YOCTO_BUILD),1)
 ifeq ($(USE_ARMCC),1)
   ARM_BASE          ?= /home/software/ARM
   ARM_VERSION       ?= 4.0/650
@@ -168,6 +172,7 @@ else
   LD                := $(CROSS_COMPILE)ld
   RANLIB            := $(CROSS_COMPILE)ranlib
   STRIP             := $(CROSS_COMPILE)strip
+endif
 endif
 
 PKG_CONFIG          ?= $(CROSS_COMPILE)pkg-config
@@ -281,9 +286,19 @@ ifeq ($(LINUX_OABI),1)
   CFLAGS            += -DLINUX_OABI
 endif
 
+ifneq ($(filter asan, $(DEBUG)),)
+  CFLAGS            +=-fsanitize=address -g -O
+  LFLAGS            +=-fsanitize=address -lasan
+  LDFLAGS           +=-fsanitize=address -lasan
+endif
+
+ifneq ($(filter systrace-api, $(DEBUG)),)
+  CFLAGS            += -DgcdSYSTRACE=1 -DLINUX -DgcdDEBUG=gcdDEBUG_TRACE
+endif
+
 ifeq ($(DEBUG),1)
 # CFLAGS            += -g3 -ggdb3 -O0 -DDEBUG -D_DEBUG -DgcdDEBUG=1
-  CFLAGS            += -g -O1 -DDEBUG -D_DEBUG -DgcdDEBUG=1
+  CFLAGS            += -g -O0 -DDEBUG -D_DEBUG -DgcdDEBUG=1
 else
   ifeq ("$(DEBUG)", "valgrind")
     CFLAGS          += -g -O -DgcdBUILT_FOR_VALGRIND=1
@@ -292,9 +307,28 @@ else
   endif
 endif
 
+ifeq ("$(ARCH_TYPE)", "x86_64")
+    CFLAGS              += -DX86_64_ARCH
+else ifeq ("$(ARCH_TYPE)", "arm64")
+    CFLAGS              += -DARM64_ARCH
+endif
+
+ifeq ($(USE_LINUX_PCIE),1)
+  CFLAGS            += -DUSE_LINUX_PCIE=1
+else
+  CFLAGS            += -DUSE_LINUX_PCIE=0
+endif
+
 CFLAGS              += -DgcdENABLE_3D=$(VIVANTE_ENABLE_3D)
 CFLAGS              += -DgcdENABLE_2D=$(VIVANTE_ENABLE_2D)
 CFLAGS              += -DgcdENABLE_VG=$(VIVANTE_ENABLE_VG)
+CFLAGS              += -DgcdVG_NONE=$(VIVANTE_NO_VG)
+
+CFLAGS              += -DVX_VA40_EXT_SUPPORT=$(VIVANTE_ENABLE_40BITS_VA) -DgcdENABLE_40BIT_VA=$(VIVANTE_ENABLE_40BITS_VA)
+
+ifeq ($(VIVANTE_ENABLE_DEV_BUILD),1)
+  CFLAGS            += -DgcdVX_DEV_BUILD
+endif
 
 ifeq ($(VIVANTE_NO_GL4),1)
   CFLAGS            += -DVIVANTE_NO_GL4
@@ -310,7 +344,7 @@ else
   CFLAGS            += -DgcdUSE_VX=0
 endif
 
-ifneq ($(VIVANTE_ENABLE_3D),0)
+ifneq ($(VIVANTE_ENABLE_3D)_$(VIVANTE_ENABLE_VG),0_0)
   CFLAGS            += -DUSE_VDK=$(USE_VDK)
 else
   CFLAGS            += -DUSE_VDK=0
@@ -334,7 +368,7 @@ ifeq ($(USE_BANK_ALIGNMENT),1)
 endif
 
 ifeq ($(EGL_API_GBM),1)
-  CFLAGS            += -DEGL_API_GBM -D__GBM__=1
+  CFLAGS            += -DEGL_API_GBM
 endif
 
 ifeq ($(EGL_API_NULLWS),1)
@@ -346,28 +380,35 @@ ifeq ($(EGL_API_FB),1)
 endif
 
 ifeq ($(EGL_API_WL),1)
-  CFLAGS            += -DEGL_API_WL -DWL_EGL_PLATFORM -Wno-deprecated-declarations
+  CFLAGS            += -DEGL_API_WL -Wno-deprecated-declarations
   ifeq ($(GL4_DRI_BUILD),1)
-    CFLAGS            += -DDRI_PIXMAPRENDER_ASYNC
-    CFLAGS            += -DGL4_DRI_BUILD
+    CFLAGS          += -DDRI_PIXMAPRENDER_ASYNC
+    CFLAGS          += -DGL4_DRI_BUILD
   endif
-else
-  ifeq ($(EGL_API_DRI),1)
+endif
+
+ifeq ($(EGL_API_DRI),1)
   CFLAGS            += -DDRI_PIXMAPRENDER_ASYNC
   CFLAGS            += -DGL4_DRI_BUILD
   CFLAGS            += -DEGL_API_DRI
   ifneq ($(ROOTFS),)
-    CFLAGS            += -I$(ROOTFS)/usr/include
+    CFLAGS          += -I$(ROOTFS)/usr/include
   endif
-  endif
+endif
 
-  ifeq ($(X11_DRI3),1)
+ifeq ($(X11_DRI3),1)
   CFLAGS            += -DDRI_PIXMAPRENDER_ASYNC
   CFLAGS            += -DGL4_DRI_BUILD
   CFLAGS            += -DX11_DRI3
   ifneq ($(ROOTFS),)
-    CFLAGS            += -I$(ROOTFS)/usr/include
+    CFLAGS          += -I$(ROOTFS)/usr/include
   endif
+endif
+
+ifeq ($(EGL_API_X),1)
+  CFLAGS            += -DEGL_API_X
+  ifneq ($(ROOTFS),)
+    CFLAGS          += -I$(ROOTFS)/usr/include
   endif
 endif
 
@@ -375,17 +416,9 @@ ifeq ($(EGL_API_DFB),1)
   CFLAGS            += -DEGL_API_DFB
 endif
 
-ifeq ($(EGL_API_X),1)
-  CFLAGS            += -DEGL_API_X
-  ifneq ($(ROOTFS),)
-    CFLAGS            += -I$(ROOTFS)/usr/include
-  endif
-endif
-
 ifeq ($(STATIC_LINK),1)
   CFLAGS            += -DSTATIC_LINK
 endif
-
 
 ifeq ($(USE_NEW_LINUX_SIGNAL),1)
   CFLAGS            += -DUSE_NEW_LINUX_SIGNAL=1
@@ -461,14 +494,28 @@ ifeq ($(USE_VXC_BINARY),1)
   endif
 else
    CFLAGS            += -DgcdUSE_VXC_BINARY=0
+
+   ifeq ($(USE_VXC_EMBEDDED),1)
+       CFLAGS            += -DgcdUSE_VXC_EMBEDDED=1
+   else
+       CFLAGS            += -DgcdUSE_VXC_EMBEDDED=0
+   endif
 endif
 
+ifeq ($(LINUX_EMULATOR),1)
+  CFLAGS            += -DEMULATOR
+  CFLAGS            += -DLINUXEMULATOR
+endif
 
 ifeq ($(LINUX_VSIMULATOR),1)
   CFLAGS            += -DEMULATOR -DVSIMULATOR_DEBUG
   CXXFLAGS          += -DEMULATOR -DVSIMULATOR_DEBUG
 endif
 
+
+ifeq ($(ENABLE_VIDEO_MEMORY_MIRROR),1)
+  CFLAGS            += -DgcdENABLE_VIDEO_MEMORY_MIRROR=1
+endif
 
 CFLAGS              += -DgcdGC355_MEM_PRINT=$(GC355_MEM_PRINT)
 CFLAGS              += -DgcdGC355_PROFILER=$(GC355_PROFILER)
@@ -516,7 +563,7 @@ EGL_DIR             := $(AQROOT)/driver/khronos/libEGL
 GLES11_DIR          := $(AQROOT)/driver/khronos/libGLESv11
 GLES2X_DIR          := $(AQROOT)/driver/khronos/libGLESv3
 GL4X_DIR            := $(AQROOT)/driver/khronos/libGL4
-LIBDRM_DIR          := $(AQROOT)/driver/X/libdrm-2.4.91
+LIBDRM_DIR          := $(AQROOT)/driver/X/libdrm-2.4.107
 
 CL11_DIR            := $(AQROOT)/driver/khronos/libCL
 CL11_ICD_DIR        := $(AQROOT)/driver/khronos/libCL/icdloader12
@@ -526,7 +573,7 @@ GLSLC_DIR           := $(AQROOT)/compiler/libGLSLC
 VSC_DIR             := $(AQROOT)/compiler/libVSC
 VSC_Lite_DIR        := $(AQROOT)/compiler/libVSC_Lite
 
-VULKAN_DIR          := $(AQROOT)/driver/khronos/libVulkan11
+VULKAN_DIR          := $(AQROOT)/driver/khronos/libVulkan12
 SPIRV_DIR           := $(AQROOT)/compiler/libSPIRV
 
 OPENVX_DIR          := $(AQROOT)/driver/khronos/libOpenVX

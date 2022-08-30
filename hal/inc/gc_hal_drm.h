@@ -1,6 +1,6 @@
 /****************************************************************************
 *
-*    Copyright (c) 2005 - 2021 by Vivante Corp.  All rights reserved.
+*    Copyright (c) 2005 - 2022 by Vivante Corp.  All rights reserved.
 *
 *    The material in this file is confidential and contains trade secrets
 *    of Vivante Corporation. This is proprietary information owned by
@@ -15,9 +15,9 @@
 #define __gc_hal_drm_h_
 
 #ifdef __KERNEL__
-#include <uapi/drm/drm.h>
+#    include <uapi/drm/drm.h>
 #else
-#include <drm.h>
+#    include <drm.h>
 #endif
 
 #if defined(__cplusplus)
@@ -46,7 +46,6 @@ struct drm_viv_gem_unlock {
     __u32 handle;
 };
 
-
 #define DRM_VIV_GEM_CLEAN_CACHE         0x01
 #define DRM_VIV_GEM_INVALIDATE_CACHE    0x02
 #define DRM_VIV_GEM_FLUSH_CACHE         0x03
@@ -59,7 +58,6 @@ struct drm_viv_gem_cache {
     __u64 bytes;
 };
 
-
 #define DRM_VIV_GEM_PARAM_POOL      0x00
 #define DRM_VIV_GEM_PARAM_SIZE      0x01
 
@@ -69,7 +67,6 @@ struct drm_viv_gem_query {
     __u64 value;
 };
 
-
 struct drm_viv_gem_timestamp {
     __u32 handle;
     /* inc count, 0 for query current. */
@@ -78,12 +75,11 @@ struct drm_viv_gem_timestamp {
     __u64 timestamp;
 };
 
-
 /* basic tiling mode. */
-#define DRM_VIV_GEM_TILING_LINEAR       0x01
-#define DRM_VIV_GEM_TILING_TILED        0x02
-#define DRM_VIV_GEM_TILING_SUPERTILED   0x04
-#define DRM_VIV_GEM_TILING_MINORTILED   0x08
+#define DRM_VIV_GEM_TILING_LINEAR     0x01
+#define DRM_VIV_GEM_TILING_TILED      0x02
+#define DRM_VIV_GEM_TILING_SUPERTILED 0x04
+#define DRM_VIV_GEM_TILING_MINORTILED 0x08
 
 /* tiling mode modifiers. */
 #define DRM_VIV_GEM_TILING_SPLIT    0x10
@@ -120,12 +116,10 @@ struct drm_viv_gem_get_tiling {
     __u64 clear_value;
 };
 
-
 struct drm_viv_gem_attach_aux {
     __u32 handle;
     __u32 ts_handle;
 };
-
 
 struct drm_viv_gem_ref_node {
     __u32 handle;
@@ -134,7 +128,6 @@ struct drm_viv_gem_ref_node {
     __u32 node;
     __u32 ts_node;
 };
-
 
 #define DRM_VIV_GEM_CREATE          0x00
 #define DRM_VIV_GEM_LOCK            0x01
@@ -160,13 +153,13 @@ struct drm_viv_gem_ref_node {
 #define DRM_IOCTL_VIV_GEM_REF_NODE      DRM_IOWR(DRM_COMMAND_BASE + DRM_VIV_GEM_REF_NODE, struct drm_viv_gem_ref_node)
 
 #ifdef __KERNEL__
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,9,0)
-#define drm_gem_object_unreference_unlocked drm_gem_object_put
-#define drm_dev_unref drm_dev_put
-#elif LINUX_VERSION_CODE >= KERNEL_VERSION(5,4,0)
-#define drm_gem_object_unreference_unlocked drm_gem_object_put_unlocked
-#define drm_dev_unref drm_dev_put
-#endif
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 9, 0)
+#        define drm_gem_object_unreference_unlocked drm_gem_object_put
+#        define drm_dev_unref                       drm_dev_put
+#    elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+#        define drm_gem_object_unreference_unlocked drm_gem_object_put_unlocked
+#        define drm_dev_unref                       drm_dev_put
+#    endif
 #endif
 
 #if defined(__cplusplus)

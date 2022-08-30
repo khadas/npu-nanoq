@@ -1,6 +1,6 @@
 /****************************************************************************
 *
-*    Copyright (c) 2005 - 2021 by Vivante Corp.  All rights reserved.
+*    Copyright (c) 2005 - 2022 by Vivante Corp.  All rights reserved.
 *
 *    The material in this file is confidential and contains trade secrets
 *    of Vivante Corporation. This is proprietary information owned by
@@ -25,12 +25,11 @@ extern "C" {
 #define VIV_VIDMEM_METADATA_MAGIC __FOURCC('v', 'i', 'v', 'm')
 
 /* Metadata for cross-device fd share with additional (ts) info. */
-typedef struct _VIV_VIDMEM_METADATA
-{
+typedef struct _VIV_VIDMEM_METADATA {
     uint32_t magic;
 
     int32_t  ts_fd;
-    void *   ts_dma_buf;
+    void     *ts_dma_buf;
 
     uint32_t fc_enabled;
     uint32_t fc_value;

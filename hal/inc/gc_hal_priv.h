@@ -1,6 +1,6 @@
 /****************************************************************************
 *
-*    Copyright (c) 2005 - 2021 by Vivante Corp.  All rights reserved.
+*    Copyright (c) 2005 - 2022 by Vivante Corp.  All rights reserved.
 *
 *    The material in this file is confidential and contains trade secrets
 *    of Vivante Corporation. This is proprietary information owned by
@@ -20,15 +20,14 @@
 extern "C" {
 #endif
 
-typedef struct _gcsSYMBOLSLIST *        gcsSYMBOLSLIST_PTR;
+typedef struct _gcsSYMBOLSLIST     *gcsSYMBOLSLIST_PTR;
 /******************************************************************************
-**
-** Patch defines which should be moved to dedicate file later
-**
-** !!! ALWAYS ADD new ID in the TAIL, otherwise will break exising TRACE FILE
-*******************************************************************************/
-typedef enum _gcePATCH_ID
-{
+ **
+ ** Patch defines which should be moved to dedicate file later
+ **
+ ** !!! ALWAYS ADD new ID in the TAIL, otherwise will break exising TRACE FILE
+ ******************************************************************************/
+typedef enum _gcePATCH_ID {
     gcvPATCH_NOTINIT = -1,
     gcvPATCH_INVALID = 0,
 
@@ -171,10 +170,21 @@ typedef enum _gcePATCH_ID
     gcvPATCH_GLDEMO_GEOMETRY, /* 137 */
     gcvPATCH_HP_Nano_Tesla, /* 138 */
     gcvPATCH_3D_PERF_FLOAT, /* 139 */
+    gcvPATCH_SOFTISP, /* 140 */
+    gcvPATCH_OPENCV_ALL, /* 141 */
+    gcvPATCH_GLDEMO_INFINITE_LOOP, /* 142 */
+    gcvPATCH_VIEWPERF, /* 143 */
+    gcvPATCH_COMPIZ, /* 144 */
+    gcvPATCH_XORG, /* 145 */
+    gcvPATCH_OPENCV_PERF_VIDEO, /* 146 */
+    gcvPATCH_CL_API_CREATE_BUFFER, /* 147 */
+    gcvPATCH_CLPEAK, /* 148 */
+    gcvPATCH_GEMM, /* 149 */
+    gcvPATCH_XWAYLAND, /* 150 */
+    gcvPATCH_UKUI_KWIN, /* 151 */
 
     gcvPATCH_COUNT
 } gcePATCH_ID;
-
 
 #if gcdENABLE_3D
 #define gcdPROC_IS_WEBGL(patchId)       ((patchId) == gcvPATCH_CHROME           || \
@@ -182,9 +192,7 @@ typedef enum _gcePATCH_ID
                                          (patchId) == gcvPATCH_ANDROID_WEBGL    || \
                                          (patchId) == gcvPATCH_ANDROID_BROWSER)
 
-
-enum
-{
+enum {
     gcvHINT_BIT_0 = 1 << 0,
     gcvHINT_BIT_1 = 1 << 1,
     gcvHINT_BIT_2 = 1 << 2,
@@ -192,19 +200,15 @@ enum
 
 #endif /* gcdENABLE_3D */
 
+/******************************************************************************
+ ****************************** Process local storage *************************
+ ******************************************************************************/
 
-/******************************************************************************\
-******************************* Process local storage *************************
-\******************************************************************************/
+typedef struct _gcsPLS *gcsPLS_PTR;
 
-typedef struct _gcsPLS * gcsPLS_PTR;
+typedef void (*gctPLS_DESTRUCTOR) (gcsPLS_PTR);
 
-typedef void (* gctPLS_DESTRUCTOR) (
-    gcsPLS_PTR
-    );
-
-typedef struct _gcsPLS
-{
+typedef struct _gcsPLS {
     /* Global objects. */
     gcoOS                       os;
     gcoHAL                      hal;
@@ -245,8 +249,8 @@ typedef struct _gcsPLS
 
     gctPLS_DESTRUCTOR           destructor;
     /* Mutex to guard PLS access. currently it's for EGL.
-    ** We can use this mutex for every PLS access.
-    */
+     *  We can use this mutex for every PLS access.
+     */
     gctPOINTER                  accessLock;
 
     /* Mutex to gurad gl FE compiler access. */
@@ -281,69 +285,42 @@ typedef struct _gcsPLS
     gctUINT32               video_freeCount;
     gctUINT64               video_freeSize;
     gctUINT64               video_currentSize;
-}
-gcsPLS;
+} gcsPLS;
 
 extern gcsPLS gcPLS;
 
 gceSTATUS
-gcoHAL_GetBaseAddr(
-    IN  gcoHAL Hal,
-    OUT gctUINT32 *BaseAddr
-    );
+gcoHAL_GetBaseAddr(IN  gcoHAL Hal, OUT gctUINT32 *BaseAddr);
 
 gceSTATUS
-gcoHAL_SetPatchID(
-    IN  gcoHAL Hal,
-    IN  gcePATCH_ID PatchID
-    );
+gcoHAL_SetPatchID(IN  gcoHAL Hal, IN  gcePATCH_ID PatchID);
 
 /* Get Patch ID based on process name */
 gceSTATUS
-gcoHAL_GetPatchID(
-    IN  gcoHAL Hal,
-    OUT gcePATCH_ID * PatchID
-    );
+gcoHAL_GetPatchID(IN  gcoHAL Hal, OUT gcePATCH_ID *PatchID);
 
 gceSTATUS
-gcoHAL_SetGlobalPatchID(
-    IN  gcoHAL Hal,
-    IN  gcePATCH_ID PatchID
-    );
+gcoHAL_SetGlobalPatchID(IN  gcoHAL Hal, IN  gcePATCH_ID PatchID);
 
 /* Detect if the current process is the executable specified. */
 gceSTATUS
-gcoOS_DetectProcessByName(
-    IN gctCONST_STRING Name
-    );
+gcoOS_DetectProcessByName(IN gctCONST_STRING Name);
 
 gceSTATUS
-gcoOS_DetectProcessByEncryptedName(
-    IN gctCONST_STRING Name
-    );
+gcoOS_DetectProcessByEncryptedName(IN gctCONST_STRING Name);
 
 gceSTATUS
-gcoOS_DetectProgrameByEncryptedSymbols(
-    IN gcsSYMBOLSLIST_PTR Symbols
-    );
+gcoOS_DetectProgrameByEncryptedSymbols(IN gcsSYMBOLSLIST_PTR Symbols);
 
 /* Get access to the process local storage. */
 gceSTATUS
-gcoHAL_GetPLS(
-    OUT gcsPLS_PTR * PLS
-    );
+gcoHAL_GetPLS(OUT gcsPLS_PTR *PLS);
 
 gceSTATUS
-gcoHAL_SetPriority(
-    IN gcoHAL Hal,
-    IN gctUINT32 PriorityID
-    );
+gcoHAL_SetPriority(IN gcoHAL Hal, IN gctUINT32 PriorityID);
 
 gceSTATUS
-gcoHAL_GetPriority(
-    IN gcoHAL Hal,
-    OUT gctUINT32 * PriorityID
-    );
+gcoHAL_GetPriority(IN gcoHAL Hal, OUT gctUINT32 *PriorityID);
 
 #ifdef __cplusplus
 }

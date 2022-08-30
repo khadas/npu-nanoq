@@ -48,6 +48,7 @@ typedef enum
     VSI_NN_KERNEL_TYPE_EVIS,
     VSI_NN_KERNEL_TYPE_CL,
     VSI_NN_KERNEL_TYPE_VX,
+    VSI_NN_KERNEL_TYPE_SP,
     VSI_NN_KERNEL_TYPE_NUM,
     VSI_NN_KERNEL_TYPE_NONE = VSI_NN_KERNEL_TYPE_NUM
 } vsi_nn_kernel_type_e;
@@ -75,7 +76,9 @@ typedef enum
     F32,
     F64,
     BF16,
-    BOOL8
+    BOOL8,
+    I4,
+    U4,
 } vsi_nn_kernel_dtype_e;
 
 typedef enum
@@ -153,6 +156,8 @@ typedef struct
         vsi_nn_kernel_quant_asymm_t asymm;
         vsi_nn_kernel_quant_asymm_perchannel_t asymm_v;
     };
+    float scale;
+    int32_t zero_point;
 } vsi_nn_kernel_tensor_attr_t;
 
 typedef struct
@@ -303,6 +308,8 @@ const void * vsi_nn_kernel_param_get_const_buffer
     REGISTER_KERNEL_BACKEND(operation, CPU, func)
 #define REGISTER_BACKEND_OPENVX(operation, func) \
     REGISTER_KERNEL_BACKEND(operation, VX, func)
+#define REGISTER_BACKEND_STREAM_PROCESSOR(operation, func) \
+    REGISTER_KERNEL_BACKEND(operation, SP, func)
 
 #define DEF_KERNEL_BASE_CALLBACK( NAME )  \
     static vsi_status NAME##_impl( vsi_nn_kernel_node_t node, \
@@ -319,9 +326,20 @@ const void * vsi_nn_kernel_param_get_const_buffer
             } \
     static vsi_status NAME##_impl
 
+#define DEF_SP_KERNEL_BASE_CALLBACK( NAME )  \
+    static vsi_status NAME##_impl( vsi_nn_kernel_node_t node); \
+    static vx_status VX_CALLBACK NAME( \
+            vx_node node) {\
+                return (vx_status)NAME##_impl( \
+                        (vsi_nn_kernel_node_t)node); \
+            } \
+    static vsi_status NAME##_impl
+
+
 #define DEF_KERNEL_INITIALIZER( NAME )          DEF_KERNEL_BASE_CALLBACK( NAME )
 #define DEF_KERNEL_EXECUTOR( NAME )             DEF_KERNEL_BASE_CALLBACK( NAME )
 #define DEF_KERNEL_DEINITIALIZER( NAME )        DEF_KERNEL_BASE_CALLBACK( NAME )
+#define DEF_SP_KERNEL_QUERY( NAME )             DEF_SP_KERNEL_BASE_CALLBACK( NAME )
 
 void vsi_nn_kernel_backend_register
     (
@@ -406,7 +424,7 @@ vsi_status vsi_nn_kernel_node_pass_param
     size_t num
     );
 
-static inline void vsi_nn_kernel_node_release
+static VSI_INLINE_API void vsi_nn_kernel_node_release
     (
     vsi_nn_kernel_node_t * node
     )
@@ -417,7 +435,7 @@ static inline void vsi_nn_kernel_node_release
     }
 }
 
-static inline void vsi_nn_kernel_node_pack_io
+static VSI_INLINE_API void vsi_nn_kernel_node_pack_io
     (
     vsi_nn_kernel_node_param_t * params,
     size_t param_num,
@@ -471,13 +489,17 @@ vsi_nn_kernel_node_t vsi_nn_kernel_selector
     );
 
 /** Map data type to gpu internal dtype. */
-static inline vsi_nn_kernel_dtype_e vsi_nn_kernel_map_dtype
+static VSI_INLINE_API vsi_nn_kernel_dtype_e vsi_nn_kernel_map_dtype
     (
     vsi_nn_type_e dtype
     )
 {
     switch( dtype )
     {
+    case VSI_NN_TYPE_INT4:
+        return I4;
+    case VSI_NN_TYPE_UINT4:
+        return U4;
     case VSI_NN_TYPE_INT8:
         return I8;
     case VSI_NN_TYPE_BOOL8:
@@ -507,13 +529,17 @@ static inline vsi_nn_kernel_dtype_e vsi_nn_kernel_map_dtype
     return I8;
 } /* vsi_nn_kernel_map_dtype() */
 
-static inline  vsi_nn_type_e vsi_nn_dtype_map_kernel
+static VSI_INLINE_API  vsi_nn_type_e vsi_nn_dtype_map_kernel
     (
     vsi_nn_kernel_dtype_e dtype
     )
 {
     switch( dtype )
     {
+    case I4:
+        return VSI_NN_TYPE_INT4;
+    case U4:
+        return VSI_NN_TYPE_UINT4;
     case I8:
         return VSI_NN_TYPE_INT8;
     case BOOL8:
@@ -543,7 +569,7 @@ static inline  vsi_nn_type_e vsi_nn_dtype_map_kernel
     return VSI_NN_TYPE_INT8;
 } /* vsi_nn_kernel_map_dtype() */
 
-static inline size_t vsi_nn_kernel_dtype_get_bytes
+static VSI_INLINE_API size_t vsi_nn_kernel_dtype_get_bytes
     (
     vsi_nn_kernel_dtype_e dtype
     )
@@ -572,7 +598,39 @@ static inline size_t vsi_nn_kernel_dtype_get_bytes
     return 0;
 } /* vsi_nn_kernel_dtype_get_bytes() */
 
-static inline vsi_nn_kernel_quant_type_e vsi_nn_kernel_map_quant_type
+static VSI_INLINE_API vsi_size_t vsi_nn_kernel_dtype_get_bits
+    (
+    vsi_nn_kernel_dtype_e dtype
+    )
+{
+    switch( dtype )
+    {
+        case I4:
+        case U4:
+            return 4;
+        case I8:
+        case U8:
+        case BOOL8:
+            return 8;
+        case I16:
+        case U16:
+        case F16:
+        case BF16:
+            return 16;
+        case I32:
+        case U32:
+        case F32:
+            return 32;
+        case I64:
+            return 64;
+        default:
+            VSILOGE("Error data type %d", dtype);
+            break;
+    }
+    return 0;
+} /* vsi_nn_kernel_dtype_get_bits() */
+
+static VSI_INLINE_API vsi_nn_kernel_quant_type_e vsi_nn_kernel_map_quant_type
     ( vsi_nn_qnt_type_e quant_type )
 {
     switch( quant_type )
@@ -595,6 +653,13 @@ vsi_nn_kernel_node_t  vsi_nn_kernel_create_node
     vsi_nn_kernel_t * kernel
     );
 
+vsi_nn_kernel_node_t  vsi_nn_kernel_create_node_ext
+    (
+    vsi_nn_graph_t * graph,
+    vsi_nn_kernel_t * kernel,
+    const char** resources
+    );
+
 vsi_status vsi_nn_kernel_node_set_border
     (vsi_nn_kernel_node_t node,
     vx_border_t* border);
@@ -606,7 +671,7 @@ vsi_nn_kernel_scalar_t vsi_nn_kernel_scalar_create
     const void * data
     );
 
-static inline void vsi_nn_kernel_scalar_release
+static VSI_INLINE_API void vsi_nn_kernel_scalar_release
     ( vsi_nn_kernel_scalar_t * scalar )
 {
     if( scalar && *scalar )
@@ -614,6 +679,12 @@ static inline void vsi_nn_kernel_scalar_release
         vxReleaseScalar( (vx_scalar*)scalar );
     }
 } /* vsi_nn_kernel_scalar_relase() */
+
+vsi_status vsi_nn_kernel_scalar_read_uint4
+    ( vsi_nn_kernel_scalar_t scalar, uint8_t * out_data );
+
+vsi_status vsi_nn_kernel_scalar_read_int4
+    ( vsi_nn_kernel_scalar_t scalar, int8_t * out_data );
 
 vsi_status vsi_nn_kernel_scalar_read_int8
     ( vsi_nn_kernel_scalar_t scalar, int8_t * out_data );
@@ -667,6 +738,13 @@ vsi_status vsi_nn_kernel_register
     (
     vsi_nn_graph_t * graph,
     vsi_nn_kernel_t * kernel
+    );
+
+vsi_status vsi_nn_kernel_register_ext
+    (
+    vsi_nn_graph_t * graph,
+    vsi_nn_kernel_t * kernel,
+    const char** resources
     );
 
 vsi_bool vsi_nn_kernel_gpu_check_shape
@@ -738,7 +816,7 @@ vsi_status vsi_nn_kernel_tensor_write
     size_t size
     );
 
-static inline vsi_size_t vsi_nn_kernel_tensor_attr_get_size
+static VSI_INLINE_API vsi_size_t vsi_nn_kernel_tensor_attr_get_size
     ( const vsi_nn_kernel_tensor_attr_t * attr )
 {
     if( !attr )
@@ -748,31 +826,96 @@ static inline vsi_size_t vsi_nn_kernel_tensor_attr_get_size
     return vsi_nn_shape_get_size( attr->shape->data, (vsi_size_t)attr->shape->size );
 } /* vsi_nn_kernel_tensor_attr_get_size() */
 
-static inline vsi_size_t vsi_nn_kernel_tensor_attr_get_bytes
+static VSI_INLINE_API vsi_size_t vsi_nn_kernel_tensor_attr_get_bytes
     ( const vsi_nn_kernel_tensor_attr_t * attr )
 {
-    vsi_size_t size;
-    vsi_size_t type_bytes;
+    vsi_size_t i = 0;
+    vsi_size_t bytes;
+    vsi_size_t bits_num;
+    vsi_size_t * shape = NULL;
     if( !attr )
     {
         return 0;
     }
-    size = vsi_nn_kernel_tensor_attr_get_size( attr );
-    type_bytes = (vsi_size_t)vsi_nn_kernel_dtype_get_bytes( attr->dtype );
-    return size * type_bytes;
+
+    shape = attr->shape->data;
+
+    bits_num = vsi_nn_kernel_dtype_get_bits( attr->dtype );
+    if ( bits_num < BITS_PER_BYTE )
+    {
+        if (shape[0] % 2 == 0)
+        {
+            bytes = shape[0] / 2;
+        }
+        else
+        {
+            bytes = shape[0] / 2 + shape[0] % 2;
+        }
+    }
+    else
+    {
+        bytes = shape[0] * bits_num / BITS_PER_BYTE;
+    }
+    for ( i = 1; i < (vsi_size_t)attr->shape->size; i ++ )
+    {
+        bytes *= shape[i];
+    }
+
+    return bytes;
 } /* vsi_nn_kernel_tensor_attr_get_bytes() */
 
-static inline void vsi_nn_kernel_tensor_attr_get_stride
+static VSI_INLINE_API void vsi_nn_kernel_tensor_attr_get_stride
     ( const vsi_nn_kernel_tensor_attr_t * attr, vsi_size_t * out_stride)
 {
+    vsi_size_t type_bits;
+    vsi_size_t total_bytes;
+    vsi_size_t * shape = NULL;
+
     if( !attr || !out_stride )
     {
         return;
     }
-    vsi_nn_shape_get_stride( attr->shape->data, (vsi_size_t)attr->shape->size, out_stride );
+
+    shape = attr->shape->data;
+    type_bits = vsi_nn_kernel_dtype_get_bits( attr->dtype );
+
+    if ( type_bits < BITS_PER_BYTE )
+    {
+        vsi_size_t i;
+
+        out_stride[0] = type_bits / BITS_PER_BYTE;
+        total_bytes = out_stride[0];
+
+        total_bytes = 1;
+        if ( shape[0] % (BITS_PER_BYTE / type_bits) == 0 )
+        {
+             out_stride[1] = shape[0] * type_bits / BITS_PER_BYTE;
+        }
+        else
+        {
+             out_stride[1] = shape[0] * type_bits / BITS_PER_BYTE + 1;
+        }
+
+        total_bytes *= out_stride[1];
+        for (i = 2; i < (vsi_size_t)attr->shape->size; i++)
+        {
+            out_stride[i] = shape[i - 1] * out_stride[i - 1];
+            total_bytes *= shape[i];
+        }
+        total_bytes *= shape[1];
+
+        for( i = (vsi_size_t)attr->shape->size; i < VSI_NN_MAX_DIM_NUM; i ++ )
+        {
+            out_stride[i] = total_bytes;
+        }
+    }
+    else
+    {
+        vsi_nn_shape_get_stride( attr->shape->data, (vsi_size_t)attr->shape->size, out_stride );
+    }
 } /* vsi_nn_kernel_tensor_attr_get_size() */
 
-static inline vsi_bool vsi_nn_kernel_tensor_attr_is_quantized
+static VSI_INLINE_API vsi_bool vsi_nn_kernel_tensor_attr_is_quantized
     ( const vsi_nn_kernel_tensor_attr_t * attr )
 {
     return ( attr && attr->quant > VSI_NN_KERNEL_QUANT_NONE
@@ -888,7 +1031,61 @@ vsi_nn_tensor_t* vsi_nn_merge_input_zeropoint_to_bias
     vsi_nn_tensor_t * bias
     );
 
-static inline const char* vsi_nn_kernel_type_str
+void vsi_nn_kernel_add_source_internal
+    (
+        vsi_nn_kernel_t * kernel,
+        vsi_nn_gpu_source_fmt_e fmt,
+        size_t source_num,
+        va_list args
+    );
+
+OVXLIB_API vsi_nn_kernel_t * vsi_nn_KernelCreate
+    (
+    vsi_nn_kernel_type_e type
+    );
+
+OVXLIB_API void vsi_nn_KernelAddSource
+    (
+    vsi_nn_kernel_t * kernel,
+    vsi_nn_gpu_source_fmt_e fmt,
+    size_t source_num,
+    ...
+    );
+
+OVXLIB_API void vsi_nn_KernelAddBuildOption
+    (
+    vsi_nn_kernel_t * kernel,
+    const char * option
+    );
+
+OVXLIB_API vsi_status vsi_nn_KernelNodePassParam
+    (
+    vsi_nn_kernel_node_t node,
+    vsi_nn_kernel_node_param_t * params,
+    size_t num
+    );
+
+OVXLIB_API vsi_nn_kernel_node_t  vsi_nn_KernelCreateNodeExt
+    (
+    vsi_nn_graph_t * graph,
+    vsi_nn_kernel_t * kernel,
+    const char** resources
+    );
+
+OVXLIB_API vsi_nn_kernel_scalar_t vsi_nn_kernelScalarCreate
+    (
+    vsi_nn_graph_t * graph,
+    vsi_nn_kernel_dtype_e dtype,
+    const void * data
+    );
+
+OVXLIB_API vsi_status vsi_nn_KernelGpuConfig
+    (
+    vsi_nn_kernel_node_t node,
+    const gpu_param_t * gpu_param
+    );
+
+static VSI_INLINE_API const char* vsi_nn_kernel_type_str
     (
     vsi_nn_kernel_type_e type
     )
@@ -903,11 +1100,114 @@ static inline const char* vsi_nn_kernel_type_str
         return "CL";
     case VSI_NN_KERNEL_TYPE_VX:
         return "OPENVX";
+    case VSI_NN_KERNEL_TYPE_SP:
+        return "STERAM_PROCESSOR";
     default:
         break;
     }
     return "None";
 } /* vsi_nn_kernel_type_str() */
+
+static VSI_INLINE_API vsi_status vsi_nn_kernel_unpack_4bit_data
+    (
+    const vsi_nn_kernel_tensor_attr_t * attr,
+    uint8_t * src,
+    uint8_t * dest,
+    vsi_nn_kernel_dtype_e dtype
+    )
+{
+    vsi_status status;
+    uint32_t i = 0, j = 0;
+    uint8_t high = 0, low = 0;
+    vsi_size_t stride[VSI_NN_MAX_DIM_NUM] = {0};
+    vsi_size_t src_size;
+
+    status = VSI_SUCCESS;
+    vsi_nn_kernel_tensor_attr_get_stride( attr, stride );
+
+    src_size = stride[attr->shape->size];
+
+    for ( i = 0 ; i < src_size; i++)
+    {
+        high = src[i] >> 4;
+        low = src[i] & 0x0F;
+        if ( dtype == I4 )
+        {
+            if( high > 7)
+            {
+                high = high | 0xF0;
+            }
+            if( low > 7)
+            {
+                low = low | 0xF0;
+            }
+        }
+        if ( attr->shape->data[0] % stride[1] == 0 )
+        {
+            if ( attr->shape->data[0] == 1 )
+            {
+                dest[j] = low;
+                j++;
+            }
+            else
+            {
+                dest[j] = low;
+                dest[j+1] = high;
+                j += 2;
+            }
+        }
+        else
+        {
+            if ( (i+1) % stride[1] == 0 )
+            {
+                dest[j] = low;
+                j++;
+            }
+            else
+            {
+                dest[j] = low;
+                dest[j+1] = high;
+                j += 2;
+            }
+        }
+    }
+
+    return status;
+}
+
+static VSI_INLINE_API vsi_status vsi_nn_kernel_pack_4bit_data
+    (
+    const vsi_nn_kernel_tensor_attr_t * attr,
+    uint8_t * src,
+    uint8_t * dest
+    )
+{
+    vsi_status status;
+    uint32_t i = 0, j = 0;
+    uint8_t high = 0, low = 0;
+    vsi_size_t src_size;
+
+    status = VSI_SUCCESS;
+    src_size = vsi_nn_kernel_tensor_attr_get_size( attr );
+    for ( i = 0; i < src_size; i++ )
+    {
+        if ( (i+1) % attr->shape->data[0] == 0)
+        {
+            high = 0;
+            low = src[i];
+        }
+        else
+        {
+            high = src[i+1];
+            low = src[i];
+            i++;
+        }
+        dest[j] = (high << 4) | (low & 0xF);
+        j++;
+    }
+
+    return status;
+}
 
 __END_DECLS
 

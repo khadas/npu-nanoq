@@ -32,7 +32,7 @@
 extern "C" {
 #endif
 
-static inline vsi_bool type_is_integer
+static VSI_INLINE_API vsi_bool type_is_integer
     (
     const vsi_nn_type_e type
     )
@@ -41,10 +41,12 @@ static inline vsi_bool type_is_integer
     ret = FALSE;
     switch( type )
     {
+    case VSI_NN_TYPE_INT4:
     case VSI_NN_TYPE_INT8:
     case VSI_NN_TYPE_INT16:
     case VSI_NN_TYPE_INT32:
     case VSI_NN_TYPE_INT64:
+    case VSI_NN_TYPE_UINT4:
     case VSI_NN_TYPE_UINT8:
     case VSI_NN_TYPE_UINT16:
     case VSI_NN_TYPE_UINT32:
@@ -58,7 +60,7 @@ static inline vsi_bool type_is_integer
     return ret;
 } /* type_is_integer() */
 
-static inline vsi_bool type_is_signed
+static VSI_INLINE_API vsi_bool type_is_signed
     (
     const vsi_nn_type_e type
     )
@@ -67,6 +69,7 @@ static inline vsi_bool type_is_signed
     ret = FALSE;
     switch( type )
     {
+    case VSI_NN_TYPE_INT4:
     case VSI_NN_TYPE_INT8:
     case VSI_NN_TYPE_INT16:
     case VSI_NN_TYPE_INT32:
@@ -83,7 +86,7 @@ static inline vsi_bool type_is_signed
     return ret;
 } /* type_is_signed() */
 
-static inline uint32_t type_get_bytes
+static VSI_INLINE_API uint32_t type_get_bytes
     (
     const vsi_nn_type_e type
     )
@@ -112,7 +115,39 @@ static inline uint32_t type_get_bytes
     }
 } /* type_get_bytes() */
 
-static inline void type_get_range
+static VSI_INLINE_API uint32_t type_get_bits
+    (
+    const vsi_nn_type_e type
+    )
+{
+    switch( type )
+    {
+    case VSI_NN_TYPE_INT4:
+    case VSI_NN_TYPE_UINT4:
+        return 4;
+    case VSI_NN_TYPE_INT8:
+    case VSI_NN_TYPE_UINT8:
+    case VSI_NN_TYPE_BOOL8:
+        return 8;
+    case VSI_NN_TYPE_INT16:
+    case VSI_NN_TYPE_UINT16:
+    case VSI_NN_TYPE_FLOAT16:
+    case VSI_NN_TYPE_BFLOAT16:
+        return 16;
+    case VSI_NN_TYPE_INT32:
+    case VSI_NN_TYPE_UINT32:
+    case VSI_NN_TYPE_FLOAT32:
+        return 32;
+    case VSI_NN_TYPE_INT64:
+    case VSI_NN_TYPE_UINT64:
+    case VSI_NN_TYPE_FLOAT64:
+        return 64;
+    default:
+        return 0;
+    }
+} /* type_get_bits() */
+
+static VSI_INLINE_API void type_get_range
     (
     vsi_nn_type_e type,
     double  * max_range,
@@ -123,8 +158,8 @@ static inline void type_get_range
     double from, to;
     from = 0.0;
     to = 0.0;
-    bits = type_get_bytes( type ) * 8;
-    if( type_is_integer( type ) )
+    bits = type_get_bits( type );
+    if( type_is_integer( type ) || bits > 0)
     {
         if( type_is_signed( type ) )
         {
@@ -151,7 +186,24 @@ static inline void type_get_range
     }
 } /* type_get_range() */
 
-static inline int32_t fp32_to_affine
+static VSI_INLINE_API vsi_bool fp32_is_inf
+    (
+        float val
+    )
+{
+    uint32_t u_value = *(uint32_t*)&val;
+
+    if ((u_value & (uint32_t)VSI_NN_INT32_MAX) == (uint32_t)VSI_NN_FLOAT32_INF)
+    {
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
+static VSI_INLINE_API int32_t fp32_to_affine
     (
     const float  in,
     const float  scale,
@@ -165,10 +217,17 @@ static inline int32_t fp32_to_affine
     type_get_range( type, &max_range, &min_range );
     data = (int32_t)(vsi_rint( in / scale ) + zero_point );
     data = vsi_nn_max( (int32_t)min_range, vsi_nn_min( (int32_t)max_range , data ) );
+
+    if (fp32_is_inf(in) != 0)
+    {
+        uint32_t sign = (*(uint32_t*)&in) >> 31;
+        data = sign == 1 ? (int32_t)min_range : (int32_t)max_range;
+    }
+
     return data;
 } /* fp32_to_affine() */
 
-static inline float affine_to_fp32
+static VSI_INLINE_API float affine_to_fp32
     (
     const int32_t    val,
     const float  scale,
@@ -181,7 +240,7 @@ static inline float affine_to_fp32
     return data;
 } /* affine_to_fp32() */
 
-static inline int32_t fp32_to_dfp
+static VSI_INLINE_API int32_t fp32_to_dfp
     (
     const float in,
     const int8_t    fl,
@@ -194,18 +253,25 @@ static inline int32_t fp32_to_dfp
     type_get_range( type, &max_range, &min_range );
     if( fl > 0 )
     {
-        data = (int32_t)vsi_rint( in * (float)( (int64_t)1 << fl ) );
+        data = (int32_t)vsi_rint( in * (double)( (int64_t)1 << fl ) );
     }
     else
     {
-        data = (int32_t)vsi_rint( in * ( 1.0f / (float)( (int64_t)1 << -fl ) ) );
+        data = (int32_t)vsi_rint( in * ( 1.0f / (double)( (int64_t)1 << -fl ) ) );
     }
     data = vsi_nn_min( data, (int32_t)max_range );
     data = vsi_nn_max( data, (int32_t)min_range );
+
+    if (fp32_is_inf(in) != 0)
+    {
+        uint32_t sign = (*(uint32_t*)&in) >> 31;
+        data = sign == 1 ? (int32_t)min_range : (int32_t) max_range;
+    }
+
     return data;
 } /* fp32_to_dfp() */
 
-static inline float dfp_to_fp32
+static VSI_INLINE_API float dfp_to_fp32
     (
     const int32_t val,
     const int8_t  fl,
@@ -224,7 +290,7 @@ static inline float dfp_to_fp32
     return result;
 } /* dfp_to_fp32() */
 
-static inline vsi_status integer_convert
+static VSI_INLINE_API vsi_status integer_convert
     (
     const void *    src,
     vsi_nn_type_e   src_type,
@@ -240,6 +306,14 @@ static inline vsi_status integer_convert
         uint32_t   src_sz = type_get_bytes( src_type );
         uint32_t   dest_sz = type_get_bytes( dest_type );
         uint8_t*   buffer = all_zeros;
+        if( src_sz == 0 )
+        {
+            src_sz = 1;
+        }
+        if( dest_sz == 0)
+        {
+            dest_sz = 1;
+        }
         if( type_is_signed( src_type ) && (((int8_t *)src)[src_sz - 1] & 0x80) )
         {
             buffer = all_ones;
@@ -260,7 +334,7 @@ typedef union
     float f;
 } _fp32_t;
 
-static inline float fp16_to_fp32
+static VSI_INLINE_API float fp16_to_fp32
     (
     int16_t in
     )
@@ -280,7 +354,7 @@ static inline float fp16_to_fp32
     return o.f;
 } /* fp16_to_fp32() */
 
-static inline float bfp16_to_fp32
+static VSI_INLINE_API float bfp16_to_fp32
     (
     int16_t in
     )
@@ -301,7 +375,7 @@ static inline float bfp16_to_fp32
     return t3 == 0 ? 0 : out;
 } /* bfp16_to_fp32() */
 
-static inline uint16_t fp32_to_fp16
+static VSI_INLINE_API uint16_t fp32_to_fp16
     (
     float in
     )
@@ -327,7 +401,7 @@ static inline uint16_t fp32_to_fp16
     return (uint16_t) fp16;
 } /* fp32_to_fp16() */
 
-static inline uint16_t fp32_to_bfp16
+static VSI_INLINE_API uint16_t fp32_to_bfp16
     (
     float in
     )
@@ -338,7 +412,7 @@ static inline uint16_t fp32_to_bfp16
     return (uint16_t) t1;
 } /* fp32_to_bfp16() */
 
-static inline uint16_t fp32_to_bfp16_rtne
+static VSI_INLINE_API uint16_t fp32_to_bfp16_rtne
     (
     float in
     )
@@ -366,7 +440,7 @@ static inline uint16_t fp32_to_bfp16_rtne
     return out;
 } /* fp32_to_bfp16_rtne */
 
-static inline vsi_status dtype_to_float32
+static VSI_INLINE_API vsi_status dtype_to_float32
     (
     uint8_t *src,
     float   *dst,
@@ -384,6 +458,8 @@ static inline vsi_status dtype_to_float32
     case VSI_NN_TYPE_BFLOAT16:
         *dst = bfp16_to_fp32( *(int16_t *)src );
         break;
+    case VSI_NN_TYPE_INT4:
+    case VSI_NN_TYPE_UINT4:
     case VSI_NN_TYPE_INT8:
     case VSI_NN_TYPE_BOOL8:
     case VSI_NN_TYPE_UINT8:
@@ -397,6 +473,7 @@ static inline vsi_status dtype_to_float32
             case VSI_NN_QNT_TYPE_DFP:
                 *dst = dfp_to_fp32( src_value, src_dtype->fl, src_dtype->vx_type );
                 break;
+            case VSI_NN_QNT_TYPE_AFFINE_SYMMETRIC:
             case VSI_NN_QNT_TYPE_AFFINE_ASYMMETRIC:
                 *dst = affine_to_fp32( src_value,
                     src_dtype->scale, src_dtype->zero_point, src_dtype->vx_type );
@@ -415,7 +492,7 @@ static inline vsi_status dtype_to_float32
     return VSI_SUCCESS;
 }
 
-static inline vsi_status float32_to_dtype
+static VSI_INLINE_API vsi_status float32_to_dtype
     (
     float   src,
     uint8_t *dst,
@@ -433,6 +510,8 @@ static inline vsi_status float32_to_dtype
     case VSI_NN_TYPE_BFLOAT16:
         *(int16_t *)dst = fp32_to_bfp16_rtne( src );
         break;
+    case VSI_NN_TYPE_INT4:
+    case VSI_NN_TYPE_UINT4:
     case VSI_NN_TYPE_INT8:
     case VSI_NN_TYPE_BOOL8:
     case VSI_NN_TYPE_UINT8:
@@ -446,6 +525,7 @@ static inline vsi_status float32_to_dtype
             case VSI_NN_QNT_TYPE_DFP:
                 dst_value = fp32_to_dfp( src, dst_dtype->fl, dst_dtype->vx_type );
                 break;
+            case VSI_NN_QNT_TYPE_AFFINE_SYMMETRIC:
             case VSI_NN_QNT_TYPE_AFFINE_ASYMMETRIC:
                 dst_value = fp32_to_affine( src,
                     dst_dtype->scale, dst_dtype->zero_point, dst_dtype->vx_type );

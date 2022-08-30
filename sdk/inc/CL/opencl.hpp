@@ -165,10 +165,6 @@
  *   the cl::allocate_pointer functions are not defined and may be
  *   defined by the user before opencl.hpp is included.
  *
- * - CL_HPP_ENABLE_DEVICE_FISSION
- *
- *   Enables device fission for OpenCL 1.2 platforms.
- *
  * - CL_HPP_ENABLE_EXCEPTIONS
  *
  *   Enable exceptions for use in the C++ bindings header. This is the
@@ -194,9 +190,21 @@
  *   applies to use of cl::Program construction and other program
  *   build variants.
  *
+ * - CL_HPP_USE_CL_DEVICE_FISSION
+ *
+ *   Enable the cl_ext_device_fission extension.
+ *
+ * - CL_HPP_USE_CL_IMAGE2D_FROM_BUFFER_KHR
+ *
+ *   Enable the cl_khr_image2d_from_buffer extension.
+ *
  * - CL_HPP_USE_CL_SUB_GROUPS_KHR
  *
  *   Enable the cl_khr_subgroups extension.
+ *
+ * - CL_HPP_USE_DX_INTEROP
+ *
+ *   Enable the cl_khr_d3d10_sharing extension.
  *
  * - CL_HPP_USE_IL_KHR
  *
@@ -209,6 +217,10 @@
  * bindings, including support for the optional exception feature and
  * also the supplied vector and string classes, see following sections for
  * decriptions of these features.
+ *
+ * Note: the C++ bindings use std::call_once and therefore may need to be
+ * compiled using special command-line options (such as "-pthread") on some
+ * platforms!
  *
  * \code
     #define CL_HPP_ENABLE_EXCEPTIONS
@@ -224,28 +236,30 @@
 
     int main(void)
     {
-        // Filter for a 2.0 platform and set it as the default
+        // Filter for a 2.0 or newer platform and set it as the default
         std::vector<cl::Platform> platforms;
         cl::Platform::get(&platforms);
         cl::Platform plat;
         for (auto &p : platforms) {
             std::string platver = p.getInfo<CL_PLATFORM_VERSION>();
-            if (platver.find("OpenCL 2.") != std::string::npos) {
+            if (platver.find("OpenCL 2.") != std::string::npos ||
+                platver.find("OpenCL 3.") != std::string::npos) {
+                // Note: an OpenCL 3.x platform may not support all required features!
                 plat = p;
             }
         }
-        if (plat() == 0)  {
-            std::cout << "No OpenCL 2.0 platform found.";
+        if (plat() == 0) {
+            std::cout << "No OpenCL 2.0 or newer platform found.\n";
             return -1;
         }
 
         cl::Platform newP = cl::Platform::setDefault(plat);
         if (newP != plat) {
-            std::cout << "Error setting default platform.";
+            std::cout << "Error setting default platform.\n";
             return -1;
         }
 
-        // Use C++11 raw string literals for kernel source code
+        // C++11 raw string literal for the first kernel
         std::string kernel1{R"CLC(
             global int globalA;
             kernel void updateGlobal()
@@ -253,6 +267,8 @@
               globalA = 75;
             }
         )CLC"};
+
+        // Raw string literal for the second kernel
         std::string kernel2{R"CLC(
             typedef struct { global int *bar; } Foo;
             kernel void vectorAdd(global const Foo* aNum, global const int *inputA, global const int *inputB,
@@ -279,8 +295,9 @@
             }
         )CLC"};
 
-        // New simpler string interface style
-        std::vector<std::string> programStrings {kernel1, kernel2};
+        std::vector<std::string> programStrings;
+        programStrings.push_back(kernel1);
+        programStrings.push_back(kernel2);
 
         cl::Program vectorAddProgram(programStrings);
         try {
@@ -319,10 +336,9 @@
         std::vector<int, cl::SVMAllocator<int, cl::SVMTraitCoarse<>>> inputA(numElements, 1, svmAlloc);
         cl::coarse_svm_vector<int> inputB(numElements, 2, svmAlloc);
 
-        //
         //////////////
-
         // Traditional cl_mem allocations
+
         std::vector<int> output(numElements, 0xdeadbeef);
         cl::Buffer outputBuffer(begin(output), end(output), false);
         cl::Pipe aPipe(sizeof(cl_int), numElements / 2);
@@ -346,12 +362,6 @@
         // This one was not passed as a parameter
         vectorAddKernel.setSVMPointers(anSVMInt);
 
-        // Hand control of coarse allocations to runtime
-        cl::enqueueUnmapSVM(anSVMInt);
-        cl::enqueueUnmapSVM(fooPointer);
-        cl::unmapSVM(inputB);
-        cl::unmapSVM(output2);
-
         cl_int error;
         vectorAddKernel(
             cl::EnqueueArgs(
@@ -368,8 +378,6 @@
             );
 
         cl::copy(outputBuffer, begin(output), end(output));
-        // Grab the SVM output vector using a map
-        cl::mapSVM(output2);
 
         cl::Device d = cl::Device::getDefault();
 
@@ -553,14 +561,21 @@
 #endif // #if !defined(CL_API_PREFIX__VERSION_1_1_DEPRECATED)
 #if !defined(CL_API_SUFFIX__VERSION_1_1_DEPRECATED)
 #define CL_API_SUFFIX__VERSION_1_1_DEPRECATED
-#endif // #if !defined(CL_API_PREFIX__VERSION_1_1_DEPRECATED)
+#endif // #if !defined(CL_API_SUFFIX__VERSION_1_1_DEPRECATED)
 
 #if !defined(CL_API_PREFIX__VERSION_1_2_DEPRECATED)
 #define CL_API_PREFIX__VERSION_1_2_DEPRECATED
 #endif // #if !defined(CL_API_PREFIX__VERSION_1_2_DEPRECATED)
 #if !defined(CL_API_SUFFIX__VERSION_1_2_DEPRECATED)
 #define CL_API_SUFFIX__VERSION_1_2_DEPRECATED
-#endif // #if !defined(CL_API_PREFIX__VERSION_1_2_DEPRECATED)
+#endif // #if !defined(CL_API_SUFFIX__VERSION_1_2_DEPRECATED)
+
+#if !defined(CL_API_PREFIX__VERSION_2_2_DEPRECATED)
+#define CL_API_PREFIX__VERSION_2_2_DEPRECATED
+#endif // #if !defined(CL_API_PREFIX__VERSION_2_2_DEPRECATED)
+#if !defined(CL_API_SUFFIX__VERSION_2_2_DEPRECATED)
+#define CL_API_SUFFIX__VERSION_2_2_DEPRECATED
+#endif // #if !defined(CL_API_SUFFIX__VERSION_2_2_DEPRECATED)
 
 #if !defined(CL_CALLBACK)
 #define CL_CALLBACK
@@ -1469,7 +1484,7 @@ CL_HPP_PARAM_NAME_INFO_3_0_(CL_HPP_DECLARE_PARAM_TRAITS_)
 CL_HPP_PARAM_NAME_INFO_SUBGROUP_KHR_(CL_HPP_DECLARE_PARAM_TRAITS_)
 #endif // #if defined(CL_HPP_USE_CL_SUB_GROUPS_KHR) && CL_HPP_TARGET_OPENCL_VERSION < 210
 
-#if defined(CL_HPP_USE_IL_KHR)
+#if defined(CL_HPP_USE_IL_KHR) && CL_HPP_TARGET_OPENCL_VERSION < 210
 CL_HPP_PARAM_NAME_INFO_IL_KHR_(CL_HPP_DECLARE_PARAM_TRAITS_)
 #endif // #if defined(CL_HPP_USE_IL_KHR)
 
@@ -1521,6 +1536,14 @@ CL_HPP_DECLARE_PARAM_TRAITS_(cl_device_info, CL_DEVICE_NODE_MASK_KHR, cl_uint)
 CL_HPP_DECLARE_PARAM_TRAITS_(cl_device_info, CL_DEVICE_PCI_BUS_INFO_KHR, cl_device_pci_bus_info_khr)
 #endif
 
+#if defined(cl_khr_integer_dot_product)
+CL_HPP_DECLARE_PARAM_TRAITS_(cl_device_info, CL_DEVICE_INTEGER_DOT_PRODUCT_CAPABILITIES_KHR, cl_device_integer_dot_product_capabilities_khr)
+#if defined(CL_DEVICE_INTEGER_DOT_PRODUCT_ACCELERATION_PROPERTIES_8BIT_KHR)
+CL_HPP_DECLARE_PARAM_TRAITS_(cl_device_info, CL_DEVICE_INTEGER_DOT_PRODUCT_ACCELERATION_PROPERTIES_8BIT_KHR, cl_device_integer_dot_product_acceleration_properties_khr)
+CL_HPP_DECLARE_PARAM_TRAITS_(cl_device_info, CL_DEVICE_INTEGER_DOT_PRODUCT_ACCELERATION_PROPERTIES_4x8BIT_PACKED_KHR, cl_device_integer_dot_product_acceleration_properties_khr)
+#endif // defined(CL_DEVICE_INTEGER_DOT_PRODUCT_ACCELERATION_PROPERTIES_8BIT_KHR)
+#endif // defined(cl_khr_integer_dot_product)
+
 #ifdef CL_PLATFORM_ICD_SUFFIX_KHR
 CL_HPP_DECLARE_PARAM_TRAITS_(cl_platform_info, CL_PLATFORM_ICD_SUFFIX_KHR, string)
 #endif
@@ -1558,6 +1581,9 @@ CL_HPP_DECLARE_PARAM_TRAITS_(cl_device_info, CL_DEVICE_LOCAL_MEM_SIZE_PER_COMPUT
 #ifdef CL_DEVICE_LOCAL_MEM_BANKS_AMD
 CL_HPP_DECLARE_PARAM_TRAITS_(cl_device_info, CL_DEVICE_LOCAL_MEM_BANKS_AMD, cl_uint)
 #endif
+#ifdef CL_DEVICE_BOARD_NAME_AMD
+CL_HPP_DECLARE_PARAM_TRAITS_(cl_device_info, CL_DEVICE_BOARD_NAME_AMD, string)
+#endif
 
 #ifdef CL_DEVICE_COMPUTE_UNITS_BITFIELD_ARM
 CL_HPP_DECLARE_PARAM_TRAITS_(cl_device_info, CL_DEVICE_COMPUTE_UNITS_BITFIELD_ARM, cl_ulong)
@@ -1567,6 +1593,9 @@ CL_HPP_DECLARE_PARAM_TRAITS_(cl_device_info, CL_DEVICE_JOB_SLOTS_ARM, cl_uint)
 #endif
 #ifdef CL_DEVICE_SCHEDULING_CONTROLS_CAPABILITIES_ARM
 CL_HPP_DECLARE_PARAM_TRAITS_(cl_device_info, CL_DEVICE_SCHEDULING_CONTROLS_CAPABILITIES_ARM, cl_bitfield)
+#endif
+#ifdef CL_DEVICE_SUPPORTED_REGISTER_ALLOCATIONS_ARM
+CL_HPP_DECLARE_PARAM_TRAITS_(cl_device_info, CL_DEVICE_SUPPORTED_REGISTER_ALLOCATIONS_ARM, vector<cl_uint>)
 #endif
 #ifdef CL_KERNEL_EXEC_INFO_WORKGROUP_BATCH_SIZE_ARM
 CL_HPP_DECLARE_PARAM_TRAITS_(cl_kernel_exec_info, CL_KERNEL_EXEC_INFO_WORKGROUP_BATCH_SIZE_ARM, cl_uint)
@@ -1937,6 +1966,7 @@ protected:
         retVal = true;
 #endif // CL_HPP_MINIMUM_OPENCL_VERSION < 120
 #endif // CL_HPP_TARGET_OPENCL_VERSION >= 120
+        (void)device;
         return retVal;
     }
 
@@ -3976,7 +4006,7 @@ public:
         Context context = Context::getDefault(err);
 
         if( useHostPtr ) {
-            object_ = ::clCreateBuffer(context(), flags, size, static_cast<DataType*>(&*startIterator), &error);
+            object_ = ::clCreateBuffer(context(), flags, size, const_cast<DataType*>(&*startIterator), &error);
         } else {
             object_ = ::clCreateBuffer(context(), flags, size, 0, &error);
         }
@@ -6420,8 +6450,7 @@ public:
         static PFN_clCreateProgramWithILKHR pfn_clCreateProgramWithILKHR = NULL;
         CL_HPP_INIT_CL_EXT_FCN_PTR_(clCreateProgramWithILKHR);
 
-        return detail::errHandler(
-            pfn_clCreateProgramWithILKHR(
+        object_ = pfn_clCreateProgramWithILKHR(
                 context(), static_cast<const void*>(IL.data()), IL.size(), &error);
 
 #endif // #if CL_HPP_TARGET_OPENCL_VERSION >= 210
@@ -6474,8 +6503,7 @@ public:
         static PFN_clCreateProgramWithILKHR pfn_clCreateProgramWithILKHR = NULL;
         CL_HPP_INIT_CL_EXT_FCN_PTR_(clCreateProgramWithILKHR);
 
-        return detail::errHandler(
-            pfn_clCreateProgramWithILKHR(
+        object_ = pfn_clCreateProgramWithILKHR(
             context(), static_cast<const void*>(IL.data()), IL.size(), &error);
 
 #endif // #if CL_HPP_TARGET_OPENCL_VERSION >= 210
@@ -6703,7 +6731,7 @@ public:
             notifyFptr,
             data);
 
-        BuildLogType buildLog(1);
+        BuildLogType buildLog(0);
         buildLog.push_back(std::make_pair(device, getBuildInfo<CL_PROGRAM_BUILD_LOG>(device)));
         return detail::buildErrHandler(buildError, __BUILD_PROGRAM_ERR, buildLog);
     }
@@ -7079,6 +7107,11 @@ enum class QueueProperties : cl_command_queue_properties
 inline QueueProperties operator|(QueueProperties lhs, QueueProperties rhs)
 {
     return static_cast<QueueProperties>(static_cast<cl_command_queue_properties>(lhs) | static_cast<cl_command_queue_properties>(rhs));
+}
+
+inline QueueProperties operator&(QueueProperties lhs, QueueProperties rhs)
+{
+    return static_cast<QueueProperties>(static_cast<cl_command_queue_properties>(lhs) & static_cast<cl_command_queue_properties>(rhs));
 }
 
 /*! \class CommandQueue
@@ -9141,7 +9174,7 @@ Buffer::Buffer(
     size_type size = sizeof(DataType)*(endIterator - startIterator);
 
     if( useHostPtr ) {
-        object_ = ::clCreateBuffer(context(), flags, size, static_cast<DataType*>(&*startIterator), &error);
+        object_ = ::clCreateBuffer(context(), flags, size, const_cast<DataType*>(&*startIterator), &error);
     } else {
         object_ = ::clCreateBuffer(context(), flags, size, 0, &error);
     }
@@ -9194,7 +9227,7 @@ Buffer::Buffer(
     Context context = queue.getInfo<CL_QUEUE_CONTEXT>();
 
     if (useHostPtr) {
-        object_ = ::clCreateBuffer(context(), flags, size, static_cast<DataType*>(&*startIterator), &error);
+        object_ = ::clCreateBuffer(context(), flags, size, const_cast<DataType*>(&*startIterator), &error);
     }
     else {
         object_ = ::clCreateBuffer(context(), flags, size, 0, &error);
@@ -9316,7 +9349,7 @@ inline cl_int enqueueMapSVM(
  */
 template<typename T, class D>
 inline cl_int enqueueMapSVM(
-    cl::pointer<T, D> ptr,
+    cl::pointer<T, D> &ptr,
     cl_bool blocking,
     cl_map_flags flags,
     size_type size,
@@ -9340,7 +9373,7 @@ inline cl_int enqueueMapSVM(
  */
 template<typename T, class Alloc>
 inline cl_int enqueueMapSVM(
-    cl::vector<T, Alloc> container,
+    cl::vector<T, Alloc> &container,
     cl_bool blocking,
     cl_map_flags flags,
     const vector<Event>* events = NULL,

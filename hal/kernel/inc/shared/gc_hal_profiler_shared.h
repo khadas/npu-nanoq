@@ -2,7 +2,7 @@
 *
 *    The MIT License (MIT)
 *
-*    Copyright (c) 2014 - 2021 Vivante Corporation
+*    Copyright (c) 2014 - 2022 Vivante Corporation
 *
 *    Permission is hereby granted, free of charge, to any person obtaining a
 *    copy of this software and associated documentation files (the "Software"),
@@ -26,7 +26,7 @@
 *
 *    The GPL License (GPL)
 *
-*    Copyright (C) 2014 - 2021 Vivante Corporation
+*    Copyright (C) 2014 - 2022 Vivante Corporation
 *
 *    This program is free software; you can redistribute it and/or
 *    modify it under the terms of the GNU General Public License
@@ -61,13 +61,12 @@ extern "C" {
 #endif
 
 #define ANDROID_PROFILER_COUNTERS   1
-#define APP_INFO   1
-#define FPGA_INFO   0
-#define RECORD_COUNTER_ADDRESS  0
+#define APP_INFO                    1
+#define FPGA_INFO                   0
+#define RECORD_COUNTER_ADDRESS      0
 
 /* HW profile information. */
-typedef struct _gcsPROFILER_COUNTERS_PART1
-{
+typedef struct _gcsPROFILER_COUNTERS_PART1 {
     gctUINT32       gpuTotalRead64BytesPerFrame;
     gctUINT32       gpuTotalWrite64BytesPerFrame;
 
@@ -171,11 +170,9 @@ typedef struct _gcsPROFILER_COUNTERS_PART1
     gctUINT32       tx_starve_count;
     gctUINT32       tx_stall_count;
     gctUINT32       tx_process_count;
-}
-gcsPROFILER_COUNTERS_PART1;
+} gcsPROFILER_COUNTERS_PART1;
 
-typedef struct _gcsPROFILER_COUNTERS_PART2
-{
+typedef struct _gcsPROFILER_COUNTERS_PART2 {
     /* MCC */
     gctUINT32       mcc_total_read_req_8B_from_colorpipe;
     gctUINT32       mcc_total_read_req_8B_sentout_from_colorpipe;
@@ -266,27 +263,21 @@ typedef struct _gcsPROFILER_COUNTERS_PART2
     gctUINT32       l2_axi1_max_latency;
     gctUINT32       l2_axi1_total_latency;
     gctUINT32       l2_axi1_total_request_count;
-}
-gcsPROFILER_COUNTERS_PART2;
+} gcsPROFILER_COUNTERS_PART2;
 
-typedef struct _gcsPROFILER_COUNTERS
-{
+typedef struct _gcsPROFILER_COUNTERS {
     gcsPROFILER_COUNTERS_PART1 counters_part1;
     gcsPROFILER_COUNTERS_PART2 counters_part2;
-}
-gcsPROFILER_COUNTERS;
+} gcsPROFILER_COUNTERS;
 
-typedef enum _gceVIP_PROBE_COUNTER
-{
+typedef enum _gceVIP_PROBE_COUNTER {
     gcvVIP_PROBE_COUNTER_NEURAL_NET,
     gcvVIP_PROBE_COUNTER_TENSOR_PROCESSOR,
     gcvVIP_PROBE_COUNTER_COUNT
-}
-gceVIP_PROBE_COUNTER;
+} gceVIP_PROBE_COUNTER;
 
 /* Mask definations for overflow indicator of TP */
-typedef enum _gceTPCOUNTER_OVERFLOW
-{
+typedef enum _gceTPCOUNTER_OVERFLOW {
     gcvTPCOUNTER_LAYER_ID_OVERFLOW                  = (1 << 0),
     gcvTPCOUNTER_TOTAL_BUSY_CYCLE_OVERFLOW          = (1 << 1),
     gcvTPCOUNTER_TOTAL_READ_BW_DDR_OVERFLOW         = (1 << 2),
@@ -303,12 +294,10 @@ typedef enum _gceTPCOUNTER_OVERFLOW
     gcvTPCOUNTER_TOTAL_IDLE_CYCLE_CORE1_OVERFLOW    = (1 << 1),
     gcvTPCOUNTER_TOTAL_IDLE_CYCLE_CORE2_OVERFLOW    = (1 << 2),
     gcvTPCOUNTER_TOTAL_IDLE_CYCLE_CORE3_OVERFLOW    = (1 << 3),
-}
-_gceTPCOUNTER_OVERFLOW;
+} _gceTPCOUNTER_OVERFLOW;
 
 /* Mask definations for overflow indicator of NN */
-typedef enum _gceNNCOUNTER_OVERFLOW
-{
+typedef enum _gceNNCOUNTER_OVERFLOW {
     gcvNNCOUNTER_TOTAL_BUSY_CYCLE_OVERFLOW          = (1 << 0),
     gcvNNCOUNTER_TOTAL_READ_CYCLE_DDR_OVERFLOW      = (1 << 2),
     gcvNNCOUNTER_TOTAL_READ_BW_DDR_OVERFLOW         = (1 << 3),
@@ -320,12 +309,10 @@ typedef enum _gceNNCOUNTER_OVERFLOW
     gcvNNCOUNTER_TOTAL_MAC_COUNT_OVERFLOW           = (1 << 9),
     gcvNNCOUNTER_ZERO_COEF_SKIP_COUNT_OVERFLOW      = (1 << 10),
     gcvNNCOUNTER_NON_ZERO_COEF_COUNT_OVERFLOW       = (1 << 11),
-}
-_gceNNCOUNTER_OVERFLOW;
+} _gceNNCOUNTER_OVERFLOW;
 
-#define   MODULE_NN_RESERVED_COUNTER_NUM           0x9
-typedef struct _gcsPROFILER_VIP_PROBE_COUNTERS
-{
+#define   MODULE_NN_RESERVED_COUNTER_NUM            0x9
+typedef struct _gcsPROFILER_VIP_PROBE_COUNTERS {
     /* NN */
     gctUINT32       nn_layer_id;
     gctUINT32       nn_layer_id_overflow;
@@ -373,7 +360,6 @@ typedef struct _gcsPROFILER_VIP_PROBE_COUNTERS
     gctUINT32       tp_total_write_bandwidth_sram;
     gctUINT32       tp_total_write_bandwidth_sram_overflow;
 
-
     gctUINT32       tp_total_read_bandwidth_ocb;
     gctUINT32       tp_total_read_bandwidth_ocb_overflow;
     gctUINT32       tp_total_write_bandwidth_ocb;
@@ -391,10 +377,7 @@ typedef struct _gcsPROFILER_VIP_PROBE_COUNTERS
 
     gctUINT32       tp_total_idle_cycle_core[16];
     gctUINT32       tp_total_idle_cycle_core_overflows[16];
-
-    /* VIP SH */
-}
-gcsPROFILER_VIP_PROBE_COUNTERS;
+} gcsPROFILER_VIP_PROBE_COUNTERS;
 
 #ifdef __cplusplus
 }

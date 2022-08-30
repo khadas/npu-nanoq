@@ -2,7 +2,7 @@
 *
 *    The MIT License (MIT)
 *
-*    Copyright (c) 2014 - 2021 Vivante Corporation
+*    Copyright (c) 2014 - 2022 Vivante Corporation
 *
 *    Permission is hereby granted, free of charge, to any person obtaining a
 *    copy of this software and associated documentation files (the "Software"),
@@ -26,7 +26,7 @@
 *
 *    The GPL License (GPL)
 *
-*    Copyright (C) 2014 - 2021 Vivante Corporation
+*    Copyright (C) 2014 - 2022 Vivante Corporation
 *
 *    This program is free software; you can redistribute it and/or
 *    modify it under the terms of the GNU General Public License
@@ -63,32 +63,27 @@
 extern "C" {
 #endif
 
-#define EVENT_ID_INVALIDATE_PIPE    29
+#define EVENT_ID_INVALIDATE_PIPE 29
 
 typedef enum {
     gcvHARDWARE_FUNCTION_MMU,
     gcvHARDWARE_FUNCTION_FLUSH,
-
     gcvHARDWARE_FUNCTION_NUM,
-}
-gceHARDWARE_FUNCTION;
+} gceHARDWARE_FUNCTION;
 
-typedef struct _gckASYNC_FE *   gckASYNC_FE;
-typedef struct _gckWLFE *       gckWLFE;
-typedef struct _gckMCFE *       gckMCFE;
+typedef struct _gckASYNC_FE *gckASYNC_FE;
+typedef struct _gckWLFE     *gckWLFE;
+typedef struct _gckMCFE     *gckMCFE;
 
-typedef struct _gcsSTATETIMER
-{
+typedef struct _gcsSTATETIMER {
     gctUINT64                   start;
     gctUINT64                   recent;
 
     /* Elapse of each power state. */
     gctUINT64                   elapse[4];
-}
-gcsSTATETIMER;
+} gcsSTATETIMER;
 
-typedef struct _gcsHARDWARE_SIGNATURE
-{
+typedef struct _gcsHARDWARE_SIGNATURE {
     /* Chip model. */
     gceCHIPMODEL                chipModel;
 
@@ -106,18 +101,14 @@ typedef struct _gcsHARDWARE_SIGNATURE
 
     /* Supported minor feature 2 fields. */
     gctUINT32                   chipMinorFeatures2;
-}
-gcsHARDWARE_SIGNATURE;
+} gcsHARDWARE_SIGNATURE;
 
-typedef struct _gcsMMU_TABLE_ARRAY_ENTRY
-{
+typedef struct _gcsMMU_TABLE_ARRAY_ENTRY {
     gctUINT32                   low;
     gctUINT32                   high;
-}
-gcsMMU_TABLE_ARRAY_ENTRY;
+} gcsMMU_TABLE_ARRAY_ENTRY;
 
-typedef struct _gcsHARDWARE_PAGETABLE_ARRAY
-{
+typedef struct _gcsHARDWARE_PAGETABLE_ARRAY {
     /* Number of entries in page table array. */
     gctUINT                     num;
 
@@ -132,12 +123,10 @@ typedef struct _gcsHARDWARE_PAGETABLE_ARRAY
 
     /* Logical address of array. */
     gctPOINTER                  logical;
-}
-gcsHARDWARE_PAGETABLE_ARRAY;
+} gcsHARDWARE_PAGETABLE_ARRAY;
 
 /* gckHARDWARE object. */
-struct _gckHARDWARE
-{
+struct _gckHARDWARE {
     /* Object. */
     gcsOBJECT                   object;
 
@@ -179,8 +168,8 @@ struct _gckHARDWARE
     gctBOOL                     isLastPowerGlobal;
 
     /* Wait Link FE only. */
-    gctUINT32                   lastWaitLink;
-    gctUINT32                   lastEnd;
+    gctADDRESS                  lastWaitLink;
+    gctADDRESS                  lastEnd;
 
     gctUINT32                   mmuVersion;
 
@@ -212,7 +201,7 @@ struct _gckHARDWARE
 
     gcsSTATETIMER               powerStateCounter;
     gctUINT32                   executeCount;
-    gctUINT32                   lastExecuteAddress;
+    gctADDRESS                  lastExecuteAddress;
 
     /* Head for hardware list in gckMMU. */
     gcsLISTHEAD                 mmuHead;
@@ -235,119 +224,93 @@ struct _gckHARDWARE
     gcsHARDWARE_PAGETABLE_ARRAY pagetableArray;
 
     gctUINT64                   contextID;
-	
-	gctUINT32                   powerTimeout;
+
+    gctUINT32                   powerTimeout;
 
     gctBOOL                     hasQchannel;
 
     gctUINT32                   powerOffTimeout;
 
-    gctUINT32                   pdevID;
+    gctUINT32                   devID;
+
+    gctBOOL                     largeVA;
 };
 
 gceSTATUS
-gckHARDWARE_GetBaseAddress(
-    IN gckHARDWARE Hardware,
-    OUT gctUINT32_PTR BaseAddress
-    );
+gckHARDWARE_GetBaseAddress(IN gckHARDWARE    Hardware,
+                           OUT gctUINT32_PTR BaseAddress);
 
 gceSTATUS
-gckHARDWARE_NeedBaseAddress(
-    IN gckHARDWARE Hardware,
-    IN gctUINT32 State,
-    OUT gctBOOL_PTR NeedBase
-    );
+gckHARDWARE_NeedBaseAddress(IN gckHARDWARE  Hardware,
+                            IN gctUINT32    State,
+                            OUT gctBOOL_PTR NeedBase);
 
 gceSTATUS
-gckHARDWARE_GetFrameInfo(
-    IN gckHARDWARE Hardware,
-    OUT gcsHAL_FRAME_INFO * FrameInfo
-    );
+gckHARDWARE_GetFrameInfo(IN gckHARDWARE         Hardware,
+                         OUT gcsHAL_FRAME_INFO *FrameInfo);
 
 gceSTATUS
-gckHARDWARE_DumpGpuProfile(
-    IN gckHARDWARE Hardware
-    );
+gckHARDWARE_DumpGpuProfile(IN gckHARDWARE Hardware);
 
 gceSTATUS
-gckHARDWARE_HandleFault(
-    IN gckHARDWARE Hardware
-    );
+gckHARDWARE_HandleFault(IN gckHARDWARE Hardware);
 
 gceSTATUS
-gckHARDWARE_ExecuteFunctions(
-    IN gcsFUNCTION_EXECUTION_PTR Execution
-    );
+gckHARDWARE_ExecuteFunctions(IN gcsFUNCTION_EXECUTION_PTR Execution);
 
 gceSTATUS
-gckHARDWARE_DummyDraw(
-    IN gckHARDWARE Hardware,
-    IN gctPOINTER Logical,
-    IN gctUINT32 Address,
-    IN gceDUMMY_DRAW_TYPE DummyDrawType,
-    IN OUT gctUINT32 * Bytes
-    );
+gckHARDWARE_DummyDraw(IN gckHARDWARE        Hardware,
+                      IN gctPOINTER         Logical,
+                      IN gctADDRESS         Address,
+                      IN gceDUMMY_DRAW_TYPE DummyDrawType,
+                      IN OUT gctUINT32     *Bytes);
 
 gceSTATUS
-gckHARDWARE_EnterQueryClock(
-    IN gckHARDWARE Hardware,
-    OUT gctUINT64 *McStart,
-    OUT gctUINT64 *ShStart
-    );
+gckHARDWARE_EnterQueryClock(IN gckHARDWARE Hardware,
+                            OUT gctUINT64 *McStart,
+                            OUT gctUINT64 *ShStart);
 
 gceSTATUS
-gckHARDWARE_ExitQueryClock(
-    IN gckHARDWARE Hardware,
-    IN gctUINT64 McStart,
-    IN gctUINT64 ShStart,
-    OUT gctUINT32 *McClk,
-    OUT gctUINT32 *ShClk
-    );
+gckHARDWARE_ExitQueryClock(IN gckHARDWARE Hardware,
+                           IN gctUINT64   McStart,
+                           IN gctUINT64   ShStart,
+                           OUT gctUINT32 *McClk,
+                           OUT gctUINT32 *ShClk);
 
 gceSTATUS
-gckHARDWARE_QueryFrequency(
-    IN gckHARDWARE Hardware
-    );
+gckHARDWARE_QueryFrequency(IN gckHARDWARE Hardware);
 
 gceSTATUS
-gckHARDWARE_SetClock(
-    IN gckHARDWARE Hardware,
-    IN gctUINT32 Core,
-    IN gctUINT32 MCScale,
-    IN gctUINT32 SHScale
-    );
+gckHARDWARE_SetClock(IN gckHARDWARE Hardware,
+                     IN gctUINT32   MCScale,
+                     IN gctUINT32   SHScale);
 
 gceSTATUS
-gckHARDWARE_PowerControlClusters(
-    gckHARDWARE Hardware,
-    gctUINT32  PowerControlValue,
-    gctBOOL PowerState
-    );
+gckHARDWARE_PowerControlClusters(gckHARDWARE Hardware,
+                                 gctUINT32 PowerControlValue,
+                                 gctBOOL PowerState);
 
 gceSTATUS
-gckHARDWARE_QueryCycleCount(
-    IN gckHARDWARE Hardware,
-    OUT gctUINT32 *hi_total_cycle_count,
-    OUT gctUINT32 *hi_total_idle_cycle_count
-    );
+gckHARDWARE_QueryCycleCount(IN gckHARDWARE Hardware,
+                            OUT gctUINT32 *hi_total_cycle_count,
+                            OUT gctUINT32 *hi_total_idle_cycle_count);
 
 gceSTATUS
-gckHARDWARE_CleanCycleCount(
-    IN gckHARDWARE Hardware
-    );
+gckHARDWARE_CleanCycleCount(IN gckHARDWARE Hardware);
 
 gceSTATUS
-gckHARDWARE_QueryCoreLoad(
-    IN gckHARDWARE Hardware,
-    OUT gctUINT32 *Load
-    );
+gckHARDWARE_QueryCoreLoad(IN gckHARDWARE Hardware,
+                          IN gctUINT32   Mdelay,
+                          OUT gctUINT32 *Load);
 
-#define gcmkWRITE_MEMORY(logical, data) \
-    do { \
-    gcmkVERIFY_OK(gckOS_WriteMemory(os, logical, data)); \
-    logical++; \
-    }\
-    while (0) ; \
+gceSTATUS
+gckHARDWARE_CancelJob(IN gckHARDWARE Hardware);
+
+#define gcmkWRITE_MEMORY(logical, data)                                       \
+    do {                                                                      \
+        gcmkVERIFY_OK(gckOS_WriteMemory(os, logical, data));                  \
+        logical++;                                                            \
+    } while (0)
 
 #ifdef __cplusplus
 }

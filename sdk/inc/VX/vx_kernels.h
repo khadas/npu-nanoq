@@ -50,7 +50,6 @@ enum vx_library_e {
  * \ingroup group_kernel
  */
 enum vx_kernel_e {
-
     /*!
      * \brief The Color Space conversion kernel.
      * \details The conversions are based on the <tt>\ref vx_df_image_e</tt> code in the images.
@@ -495,6 +494,12 @@ enum vx_kernel_e {
     VX_KERNEL_NN_CONVOLUTION_RELU_POOLING_MULTIPLY_LAYER2 = VX_KERNEL_BASE(VX_ID_VIVANTE, VX_LIBRARY_KHR_BASE) + 0x2E,
 
     VX_KERNEL_NN_BATCH_GEMM = VX_KERNEL_BASE(VX_ID_VIVANTE, VX_LIBRARY_KHR_BASE) + 0x2F,
+
+    VX_KERNEL_NN_CONV_3D_LAYER = VX_KERNEL_BASE(VX_ID_VIVANTE, VX_LIBRARY_KHR_BASE) + 0x30,
+
+    VX_KERNEL_NN_DECONV_3D_LAYER = VX_KERNEL_BASE(VX_ID_VIVANTE, VX_LIBRARY_KHR_BASE) + 0x31,
+
+    VX_KERNEL_STREAM_PROCESSOR = VX_KERNEL_BASE(VX_ID_VIVANTE, VX_LIBRARY_KHR_BASE) + 0x32,
 
     VX_KERNEL_MAX_1_2, /*!< \internal Used for VX1.2 bounds checking in the conformance test. */
 };

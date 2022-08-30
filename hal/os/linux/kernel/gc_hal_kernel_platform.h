@@ -2,7 +2,7 @@
 *
 *    The MIT License (MIT)
 *
-*    Copyright (c) 2014 - 2021 Vivante Corporation
+*    Copyright (c) 2014 - 2022 Vivante Corporation
 *
 *    Permission is hereby granted, free of charge, to any person obtaining a
 *    copy of this software and associated documentation files (the "Software"),
@@ -26,7 +26,7 @@
 *
 *    The GPL License (GPL)
 *
-*    Copyright (C) 2014 - 2021 Vivante Corporation
+*    Copyright (C) 2014 - 2022 Vivante Corporation
 *
 *    This program is free software; you can redistribute it and/or
 *    modify it under the terms of the GNU General Public License
@@ -58,11 +58,11 @@
 #include <linux/mm.h>
 #include <linux/platform_device.h>
 #if USE_LINUX_PCIE
-#include <linux/pci.h>
+#    include <linux/pci.h>
 #endif
 
 #if USE_LINUX_PCIE
-#define gcdMAX_PCIE_BAR    6
+#    define gcdMAX_PCIE_BAR 6
 #endif
 
 #define POWER_IDLE          0
@@ -71,44 +71,64 @@
 #define POWER_OFF           3
 #define POWER_RESET         4
 
-typedef struct _gcsMODULE_PARAMETERS
-{
-    gctINT                  irqs[gcvCORE_COUNT];
-    gctPHYS_ADDR_T          registerBases[gcvCORE_COUNT];
-    gctSIZE_T               registerSizes[gcvCORE_COUNT];
-    gctINT                  bars[gcvCORE_COUNT];
-
-    gctPOINTER              registerBasesMapped[gcvCORE_COUNT];
-
+typedef struct _gcsMODULE_PARAMETERS {
     gctUINT                 chipIDs[gcvCORE_COUNT];
+    gctINT                  irqs[gcdGLOBAL_CORE_COUNT];
+    gctPHYS_ADDR_T          registerBases[gcdGLOBAL_CORE_COUNT];
+    gctSIZE_T               registerSizes[gcdGLOBAL_CORE_COUNT];
+    gctPOINTER              registerBasesMapped[gcdGLOBAL_CORE_COUNT];
+
+    gctINT                  irq2Ds[gcdGLOBAL_2D_COUNT];
+    gctPHYS_ADDR_T          register2DBases[gcdGLOBAL_2D_COUNT];
+    gctSIZE_T               register2DSizes[gcdGLOBAL_2D_COUNT];
+    gctPOINTER              register2DBasesMapped[gcdGLOBAL_2D_COUNT];
+
+    gctINT                  irqVG;
+    gctPHYS_ADDR_T          registerVGBase;
+    gctSIZE_T               registerVGSize;
+    gctPOINTER              registerVGBaseMapped;
 
     /* Contiguous memory pool. */
     gctPHYS_ADDR_T          contiguousBase;
     gctSIZE_T               contiguousSize;
+    gctPHYS_ADDR_T          contiguousBases[gcdSYSTEM_RESERVE_COUNT];
+    gctSIZE_T               contiguousSizes[gcdSYSTEM_RESERVE_COUNT];
     gctBOOL                 contiguousRequested;
 
     /* External memory pool. */
-    gctPHYS_ADDR_T          externalBase[gcdPLATFORM_DEVICE_COUNT];
-    gctSIZE_T               externalSize[gcdPLATFORM_DEVICE_COUNT];
+    gctPHYS_ADDR_T          externalBase[gcdDEVICE_COUNT];
+    gctSIZE_T               externalSize[gcdDEVICE_COUNT];
 
     /* External memory pool. */
-    gctPHYS_ADDR_T          exclusiveBase[gcdPLATFORM_DEVICE_COUNT];
-    gctSIZE_T               exclusiveSize[gcdPLATFORM_DEVICE_COUNT];
+    gctPHYS_ADDR_T          exclusiveBase[gcdDEVICE_COUNT];
+    gctSIZE_T               exclusiveSize[gcdDEVICE_COUNT];
 
     /* Per-core SRAM. */
-    gctPHYS_ADDR_T          sRAMBases[gcvCORE_COUNT][gcvSRAM_INTER_COUNT];
-    gctUINT32               sRAMSizes[gcvCORE_COUNT][gcvSRAM_INTER_COUNT];
+    gctPHYS_ADDR_T          sRAMBases[gcdGLOBAL_CORE_COUNT][gcvSRAM_INTER_COUNT];
+    gctUINT32               sRAMSizes[gcdGLOBAL_CORE_COUNT][gcvSRAM_INTER_COUNT];
 
     /* Shared SRAM. */
     gctPHYS_ADDR_T          extSRAMBases[gcvSRAM_EXT_COUNT];
     gctUINT32               extSRAMSizes[gcvSRAM_EXT_COUNT];
 #if USE_LINUX_PCIE
-    gctUINT32               regOffsets[gcvCORE_COUNT];
+    gctINT                  bars[gcdGLOBAL_CORE_COUNT];
+    gctUINT32               regOffsets[gcdGLOBAL_CORE_COUNT];
+    gctINT                  bar2Ds[gcdGLOBAL_2D_COUNT];
+    gctUINT32               reg2DOffsets[gcdGLOBAL_2D_COUNT];
+    gctINT                  barVG;
+    gctUINT32               regVGOffset;
     gctINT32                sRAMBars[gcvSRAM_EXT_COUNT];
     gctINT32                sRAMOffsets[gcvSRAM_EXT_COUNT];
 #endif
 
-    gctUINT                 pdevCoreCount[gcdPLATFORM_DEVICE_COUNT];
+    gctUINT                 platformIDs[gcdDEVICE_COUNT];
+    gctUINT                 hwDevCounts[gcdPLATFORM_COUNT];
+    gctUINT                 devCoreCounts[gcdDEVICE_COUNT];
+    gctUINT                 dev2DCoreCounts[gcdDEVICE_COUNT];
+    gctUINT                 devMemIDs[gcdDEVICE_COUNT];
+    gctUINT                 devSysMemIDs[gcdDEVICE_COUNT];
+    gctUINT                 devSRAMIDs[gcdDEVICE_COUNT];
+    gctUINT                 devCount;
 
     gctBOOL                 sRAMRequested;
     gctUINT32               sRAMLoopMode;
@@ -130,13 +150,16 @@ typedef struct _gcsMODULE_PARAMETERS
     /* Debug or other information. */
     gctUINT                 stuckDump;
     gctUINT                 softReset;
-    gctINT                  gpuProfiler;
+	gctINT                  gpuProfiler;
     /* device type, 0 for char device, 1 for misc device. */
     gctUINT                 deviceType;
     gctUINT                 showArgs;
 
-    /* mmu page table pool, 0 mean auto, 1 means virsual*/
+    /* mmu page table pool, 0 mean auto, 1 means virtual. */
     gctUINT                 mmuPageTablePool;
+
+    /* mmu page table pool, 1 mean auto, others means specific pool. */
+    gctUINT                 mmuCmdPool;
 
     gctUINT                 mmuDynamicMap;
     gctUINT                 allMapInOne;
@@ -148,184 +171,149 @@ typedef struct _gcsMODULE_PARAMETERS
 
     /* Enabled NN clusters number */
     gctUINT                 enableNN;
-}
-gcsMODULE_PARAMETERS;
+
+    /* Struct device array. */
+    struct device           *devices[gcdDEVICE_COUNT];
+} gcsMODULE_PARAMETERS;
 
 typedef struct _gcsPLATFORM gcsPLATFORM;
 
-typedef struct _gcsPLATFORM_OPERATIONS
-{
-
-    /*******************************************************************************
-    **
-    **  adjustParam
-    **
-    **  Override content of arguments, if a argument is not changed here, it will
-    **  keep as default value or value set by insmod command line.
-    */
+typedef struct _gcsPLATFORM_OPERATIONS {
+    /**********************************************************************
+     **
+     **  adjustParam
+     **
+     **  Override content of arguments, if a argument is not changed here,
+     **  it will keep as default value or value set by insmod command line.
+     */
     gceSTATUS
-    (*adjustParam)(
-        IN gcsPLATFORM * Platform,
-        OUT gcsMODULE_PARAMETERS *Args
-        );
+    (*adjustParam)(IN gcsPLATFORM *Platform, OUT gcsMODULE_PARAMETERS *Args);
 
-    /*******************************************************************************
-    **
-    **  getPower
-    **
-    **  Prepare power and clock operation.
-    */
+    /**********************************************************************
+     **
+     **  getPower
+     **
+     **  Prepare power and clock operation.
+     */
     gceSTATUS
-    (*getPower)(
-        IN gcsPLATFORM * Platform
-        );
+    (*getPower)(IN gcsPLATFORM *Platform);
 
-    /*******************************************************************************
-    **
-    **  putPower
-    **
-    **  Finish power and clock operation.
-    */
+    /**********************************************************************
+     **
+     **  putPower
+     **
+     **  Finish power and clock operation.
+     */
     gceSTATUS
-    (*putPower)(
-        IN gcsPLATFORM * Platform
-        );
+    (*putPower)(IN gcsPLATFORM *Platform);
 
-    /*******************************************************************************
-    **
-    **  setPower
-    **
-    **  Set power state of specified GPU.
-    **
-    **  INPUT:
-    **
-    **      gceCORE GPU
-    **          GPU neeed to config.
-    **
-    **      gceBOOL Enable
-    **          Enable or disable power.
-    */
+    /**********************************************************************
+     **
+     **  setPower
+     **
+     **  Set power state of specified GPU.
+     **
+     **  INPUT:
+     **
+     **      gceCORE GPU
+     **          GPU neeed to config.
+     **
+     **      gceBOOL Enable
+     **          Enable or disable power.
+     */
     gceSTATUS
-    (*setPower)(
-        IN gcsPLATFORM * Platform,
-        IN gceCORE GPU,
-        IN gctBOOL Enable
-        );
+    (*setPower)(IN gcsPLATFORM *Platform,
+                IN gctUINT32    DevIndex,
+                IN gceCORE      GPU,
+                IN gctBOOL      Enable);
 
-    /*******************************************************************************
-    **
-    **  setClock
-    **
-    **  Set clock state of specified GPU.
-    **
-    **  INPUT:
-    **
-    **      gceCORE GPU
-    **          GPU neeed to config.
-    **
-    **      gceBOOL Enable
-    **          Enable or disable clock.
-    */
+    /**********************************************************************
+     **
+     **  setClock
+     **
+     **  Set clock state of specified GPU.
+     **
+     **  INPUT:
+     **
+     **      gceCORE GPU
+     **          GPU neeed to config.
+     **
+     **      gceBOOL Enable
+     **          Enable or disable clock.
+     */
     gceSTATUS
-    (*setClock)(
-        IN gcsPLATFORM * Platform,
-        IN gceCORE GPU,
-        IN gctBOOL Enable
-        );
+    (*setClock)(IN gcsPLATFORM *Platform,
+                IN gctUINT32    DevIndex,
+                IN gceCORE      GPU,
+                IN gctBOOL      Enable);
 
-    /*******************************************************************************
-    **
-    **  reset
-    **
-    **  Reset GPU outside.
-    **
-    **  INPUT:
-    **
-    **      gceCORE GPU
-    **          GPU neeed to reset.
-    */
+    /**********************************************************************
+     **
+     **  reset
+     **
+     **  Reset GPU outside.
+     **
+     **  INPUT:
+     **
+     **      gceCORE GPU
+     **          GPU neeed to reset.
+     */
     gceSTATUS
-    (*reset)(
-        IN gcsPLATFORM * Platform,
-        IN gceCORE GPU
-        );
+    (*reset)(IN gcsPLATFORM *Platform, IN gctUINT32 DevIndex, IN gceCORE GPU);
 
-    /*******************************************************************************
-    **
-    **  getGPUPhysical
-    **
-    **  Convert CPU physical address to GPU physical address if they are
-    **  different.
-    */
+    /**********************************************************************
+     **
+     **  getGPUPhysical
+     **
+     **  Convert CPU physical address to GPU physical address if they are
+     **  different.
+     */
     gceSTATUS
-    (*getGPUPhysical)(
-        IN gcsPLATFORM * Platform,
-        IN gctPHYS_ADDR_T CPUPhysical,
-        OUT gctPHYS_ADDR_T * GPUPhysical
-        );
+    (*getGPUPhysical)(IN gcsPLATFORM     *Platform,
+                      IN gctPHYS_ADDR_T   CPUPhysical,
+                      OUT gctPHYS_ADDR_T *GPUPhysical);
 
-    /*******************************************************************************
-    **
-    **  getCPUPhysical
-    **
-    **  Convert GPU physical address to CPU physical address if they are
-    **  different.
-    */
+    /**********************************************************************
+     **
+     **  getCPUPhysical
+     **
+     **  Convert GPU physical address to CPU physical address if they are
+     **  different.
+     */
     gceSTATUS
-    (*getCPUPhysical)(
-        IN gcsPLATFORM * Platform,
-        IN gctPHYS_ADDR_T GPUPhysical,
-        OUT gctPHYS_ADDR_T * CPUPhysical
-        );
+    (*getCPUPhysical)(IN gcsPLATFORM     *Platform,
+                      IN gctPHYS_ADDR_T   GPUPhysical,
+                      OUT gctPHYS_ADDR_T *CPUPhysical);
 
-    /*******************************************************************************
-    **
-    **  adjustProt
-    **
-    **  Override Prot flag when mapping paged memory to userspace.
-    */
+    /**********************************************************************
+     **
+     **  adjustProt
+     **
+     **  Override Prot flag when mapping paged memory to userspace.
+     */
     gceSTATUS
-    (*adjustProt)(
-        IN struct vm_area_struct * vma
-        );
+    (*adjustProt)(IN struct vm_area_struct *vma);
 
-    /*******************************************************************************
-    **
-    **  shrinkMemory
-    **
-    **  Do something to collect memory, eg, act as oom killer.
-    */
+    /**********************************************************************
+     **
+     **  shrinkMemory
+     **
+     **  Do something to collect memory, eg, act as oom killer.
+     */
     gceSTATUS
-    (*shrinkMemory)(
-        IN gcsPLATFORM * Platform
-        );
+    (*shrinkMemory)(IN gcsPLATFORM *Platform);
 
-    /*******************************************************************************
-    **
-    ** getPolicyID
-    **
-    ** Get policyID for a specified surface type.
-    */
+    /**********************************************************************
+     **
+     ** getPolicyID
+     **
+     ** Get policyID for a specified surface type.
+     */
     gceSTATUS
-    (*getPolicyID)(
-        IN gcsPLATFORM *Platform,
-        IN gceVIDMEM_TYPE Type,
-        OUT gctUINT32_PTR PolicyID,
-        OUT gctUINT32_PTR AXIConfig
-        );
-
-    /*******************************************************************************
-    **
-    ** syncMemory
-    **
-    */
-    gceSTATUS
-    (*syncMemory)(
-        IN gctPOINTER Object,
-        IN gctPOINTER Node,
-        IN gctUINT32 Reason
-    );
-
+    (*getPolicyID)(IN gcsPLATFORM   *Platform,
+                   IN gceVIDMEM_TYPE Type,
+                   OUT gctUINT32_PTR PolicyID,
+                   OUT gctUINT32_PTR AXIConfig);
     /*******************************************************************************
     **
     ** getPowerStatus
@@ -336,7 +324,7 @@ typedef struct _gcsPLATFORM_OPERATIONS
     (*getPowerStatus)(
         IN gcsPLATFORM *Platform,
         OUT gctUINT32_PTR pstat
-		);
+        );
 
     /*******************************************************************************
     **
@@ -349,66 +337,91 @@ typedef struct _gcsPLATFORM_OPERATIONS
         IN gcsPLATFORM *Platform,
         IN gctUINT32  powerLevel
         );
-
-    /*******************************************************************************
-    **
-    **  _ExternalCacheOperation
-    **
-    **  External device cache operation, if support. If the core has any additional caches
-    **  they must be invalidated after this function returns. If the core does not
-    **  have any addional caches the externalCacheOperation in the platform->ops should
-    **  remain NULL. The function may be called by multiple thread, so need to add mutex
-    **  in the callback when there is shared resource.
-    **
-    **  INPUT:
-    **      gceCACHEOPERATION Operation
-    **          Cache Operation: gcvCACHE_FLUSH, gcvCACHE_CLEAN or gcvCACHE_INVALIDATE.
-    **
-    **  OUTPUT:
-    **
-    **      Nothing.
-    */
+    /**********************************************************************
+     **
+     **  _ExternalCacheOperation
+     **
+     **  External device cache operation, if support. If the core has any
+     **  additional caches they must be invalidated after this function
+     **  returns.
+     **  If the core does not have any additional caches the
+     **  externalCacheOperation in the platform->ops should remain NULL.
+     **  The function may be called by multiple thread, so need to add
+     **  mutex in the callback when there is shared resource.
+     **
+     **  INPUT:
+     **      gceCACHEOPERATION Operation
+     **          Cache Operation: gcvCACHE_FLUSH, gcvCACHE_CLEAN or
+     **          gcvCACHE_INVALIDATE.
+     **
+     **  OUTPUT:
+     **
+     **      Nothing.
+     */
     void
-    (*externalCacheOperation)(
-        IN gcsPLATFORM *Platform,
-        IN gceCACHEOPERATION Operation
-    );
+    (*externalCacheOperation)(IN gcsPLATFORM      *Platform,
+                              IN gceCACHEOPERATION Operation);
+
+    /**********************************************************************
+     **
+     ** dmaCopy
+     **
+     ** copy videm memory by dma
+     */
+    gceSTATUS
+    (*dmaCopy)(IN gctPOINTER Object,
+               IN gctPOINTER DstNode,
+               IN gctPOINTER SrcNode,
+               IN gctUINT32  Reason);
+
+    /**********************************************************************
+     **
+     ** dmaInit
+     **
+     ** Init platform specified dma
+     */
+    gceSTATUS
+    (*dmaInit)(gcsPLATFORM *Platform);
+
+    /**********************************************************************
+     **
+     ** dmaExit
+     **
+     ** deInit platform dma
+     */
+    gceSTATUS
+    (*dmaExit)(gcsPLATFORM *Platform);
 
 #if gcdENABLE_MP_SWITCH
-    /*******************************************************************************
-    ** switchCoreCount
-    **
-    ** Switch the core count according to specific conditions.
-    **
-    */
+    /**********************************************************************
+     ** switchCoreCount
+     **
+     ** Switch the core count according to specific conditions.
+     **
+     */
     gceSTATUS
-    (*switchCoreCount)(
-        IN gcsPLATFORM *Platform,
-        OUT gctUINT32 *Count
-    );
+    (*switchCoreCount)(IN gcsPLATFORM *Platform, OUT gctUINT32 *Count);
 #endif
-}
-gcsPLATFORM_OPERATIONS;
+} gcsPLATFORM_OPERATIONS;
 
-struct _gcsPLATFORM
-{
+struct _gcsPLATFORM {
     struct platform_device *device;
     struct platform_driver *driver;
 
-    const char *name;
-    gcsPLATFORM_OPERATIONS* ops;
+    const char             *name;
+    gcsPLATFORM_OPERATIONS *ops;
 
-    gckDEVICE dev;
+    gckDEVICE               dev;
 
     /* PLATFORM specific flags */
-    gctUINT32  flagBits;
+    gctUINT32               flagBits;
 
     /* Real-time core count. */
-    gctUINT32  coreCount;
+    gctUINT32               coreCount;
 
-    void*                   priv;
+    void                   *priv;
     /* Module special parameters */
-    gcsMODULE_PARAMETERS params;
+    gcsMODULE_PARAMETERS    params;
 };
 
 int gckPLATFORM_Init(struct platform_driver *pdrv, gcsPLATFORM **platform);

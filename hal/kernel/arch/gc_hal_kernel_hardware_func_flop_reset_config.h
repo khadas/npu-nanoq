@@ -57,7 +57,7 @@
 *
 *    The MIT License (MIT)
 *
-*    Copyright (c) 2014 - 2021 Vivante Corporation
+*    Copyright (c) 2014 - 2022 Vivante Corporation
 *
 *    Permission is hereby granted, free of charge, to any person obtaining a
 *    copy of this software and associated documentation files (the "Software"),
@@ -81,7 +81,7 @@
 *
 *    The GPL License (GPL)
 *
-*    Copyright (C) 2014 - 2021 Vivante Corporation
+*    Copyright (C) 2014 - 2022 Vivante Corporation
 *
 *    This program is free software; you can redistribute it and/or
 *    modify it under the terms of the GNU General Public License
@@ -150,14 +150,14 @@
  * Commment: 0x85 WAR does not follow the settings.
  */
 
-#define PPU_IMAGE_XSIZE 64
-#define PPU_IMAGE_YSIZE 6
-#define PPU_IMAGE_DATA 0x01010101
-#define MAX_PPU_INSTRUCTION_COUNT 16
-#define MAX_PPU_COMMAND_NUM 128
-#define NN_INSTRUCTION_LEN 128
-#define NN_INSTRUCTION_LEN_EXT 192
-#define TP_INSTRUCTION_LEN 128
+#define PPU_IMAGE_XSIZE             64
+#define PPU_IMAGE_YSIZE             6
+#define PPU_IMAGE_DATA              0x01010101
+#define MAX_PPU_INSTRUCTION_COUNT   16
+#define MAX_PPU_COMMAND_NUM         128
+#define NN_INSTRUCTION_LEN          128
+#define NN_INSTRUCTION_LEN_EXT      192
+#define TP_INSTRUCTION_LEN          128
 
 #define GCREG_SH_INSTRUCTION_TYPE_INVALID (~0U)
 
@@ -166,64 +166,59 @@ typedef enum _gceFLOP_RESET_PPU_DATA {
     gcvFLOP_RESET_PPU_INPUT       = 1,
     gcvFLOP_RESET_PPU_OUTPUT      = 2,
     gcvFLOP_RESET_PPU_DATA_NUM
-}
-gceFLOP_RESET_PPU_DATA;
+} gceFLOP_RESET_PPU_DATA;
 
 /*
  * NN convolution.
  */
-#define MAX_NN_COMMAND_NUM 192
+#define MAX_NN_COMMAND_NUM          192
 
-#define NN_KERNEL_XSIZE 2
-#define NN_KERNEL_YSIZE 2
-#define NN_KERNEL_ZSIZE 1
+#define NN_KERNEL_XSIZE             2
+#define NN_KERNEL_YSIZE             2
+#define NN_KERNEL_ZSIZE             1
 
-#define NN_INPUT_XSIZE 3
-#define NN_INPUT_YSIZE 2
-#define NN_INPUT_ZSIZE 1
+#define NN_INPUT_XSIZE              3
+#define NN_INPUT_YSIZE              2
+#define NN_INPUT_ZSIZE              1
 
-#define NN_OUTPUT_XSIZE 2
-#define NN_OUTPUT_YSIZE 1
-#define NN_OUTPUT_ZSIZE 1
+#define NN_OUTPUT_XSIZE             2
+#define NN_OUTPUT_YSIZE             1
+#define NN_OUTPUT_ZSIZE             1
 
 typedef enum _gceVIP_ARCH_TYPE {
     gcvVIP_ARCH_TYPE_V6,
     gcvVIP_ARCH_TYPE_V7,
     gcvVIP_ARCH_TYPE_V8
-}
-gceVIP_ARCH_TYPE;
+} gceVIP_ARCH_TYPE;
 
 typedef enum _gceFLOP_RESET_NN_DATA {
-    gcvFLOP_RESET_NN_INSTRUCTION = 0,
-    gcvFLOP_RESET_NN_INPUT       = 1,
-    gcvFLOP_RESET_NN_OUTPUT      = 2,
-    gcvFLOP_RESET_NN_KERNEL      = 3,
+    gcvFLOP_RESET_NN_INSTRUCTION =  0,
+    gcvFLOP_RESET_NN_INPUT       =  1,
+    gcvFLOP_RESET_NN_OUTPUT      =  2,
+    gcvFLOP_RESET_NN_KERNEL      =  3,
     gcvFLOP_RESET_NN_DATA_NUM
-}
-gceFLOP_RESET_NN_DATA;
+} gceFLOP_RESET_NN_DATA;
 
-#define TP_KERNEL_XSIZE 1
-#define TP_KERNEL_YSIZE 1
-#define TP_KERNEL_ZSIZE 2
-#define TP_KENREL_UNITS 64
+#define TP_KERNEL_XSIZE             1
+#define TP_KERNEL_YSIZE             1
+#define TP_KERNEL_ZSIZE             2
+#define TP_KENREL_UNITS             64
 
-#define TP_INPUT_XSIZE 1
-#define TP_INPUT_YSIZE 1
-#define TP_INPUT_ZSIZE 2
+#define TP_INPUT_XSIZE              1
+#define TP_INPUT_YSIZE              1
+#define TP_INPUT_ZSIZE              2
 
-#define TP_OUTPUT_XSIZE 1
-#define TP_OUTPUT_YSIZE 64
-#define TP_OUTPUT_ZSIZE 1
+#define TP_OUTPUT_XSIZE             1
+#define TP_OUTPUT_YSIZE             64
+#define TP_OUTPUT_ZSIZE             1
 
 typedef enum _gceFLOP_RESET_TP_DATA {
-    gcvFLOP_RESET_TP_INSTRUCTION = 0,
-    gcvFLOP_RESET_TP_INPUT       = 1,
-    gcvFLOP_RESET_TP_OUTPUT      = 2,
-    gcvFLOP_RESET_TP_KERNEL      = 3,
+    gcvFLOP_RESET_TP_INSTRUCTION =  0,
+    gcvFLOP_RESET_TP_INPUT       =  1,
+    gcvFLOP_RESET_TP_OUTPUT      =  2,
+    gcvFLOP_RESET_TP_KERNEL      =  3,
     gcvFLOP_RESET_TP_DATA_NUM
-}
-gceFLOP_RESET_TP_DATA;
-
+} gceFLOP_RESET_TP_DATA;
 
 static gctUINT32 flopResetInputs[] = {
         0x33, /* uint8 */
@@ -233,9 +228,8 @@ static gctUINT32 flopResetInputs[] = {
         0x33, /* int16 */
         1, /* uint4 */
         1, /* int4 */
-        0x3f80       /* bf16 */
+        0x3f80     /* bf16 */
     };
-
 
 typedef struct{
     gctUINT32 ChipID;
@@ -244,7 +238,7 @@ typedef struct{
     gctUINT32 EcoID;
     gctUINT32 customerID;
     gctUINT32 formalRelease;
-    gctUINT8 InputDataType;
+    gctUINT8  InputDataType;
     gctUINT32 NNkerLen;
     gctUINT32 NNCmdLen;
     gctUINT32 NNCmdOffset;
@@ -258,126 +252,9 @@ typedef struct{
     gctUINT32 TPIns[256];
     gctUINT32 TPKer[512];
     gctUINT32 TPCmd[280];
-}chipCmdData;
+} chipCmdData;
 
-static chipCmdData chipcmd[]={
-    {
-        0x8000, /* ChipID */
-        0x7004, /* ChipRevision */
-        0x45080009, /* ProductID */
-        0x1, /* EcoID */
-        0x7d, /* CustomerID */
-        0x0,
-        0, /*InputDataType*/
-        0x0C0,
-        0x00000040,
-        9,
-        2, /*TPCoreCount*/
-        0x00000280,
-        0x00000068,
-        {
-            9, 19
-        },
-        {
-            0xA0100048, 0x001000C0, 0xC8000000, 0x00080080,
-            0x02084001, 0x037FD200, 0xDFF6F000, 0xDFF6E000,
-            0x00012004, 0x00000000, 0x00000000, 0x00000800,
-            0x00000880, 0x00000000, 0x00000800, 0x00000000,
-            0x00020003, 0x01000002, 0x00000000, 0x03FFFFFF,
-            0x00000000, 0x03FFFFFF, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000
-        },
-        {
-            0x00000040, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0xFF000100, 0x00000000, 0x00FFFFFF, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000
-        },
-        {
-            0x08010E4F, 0x00000000, 0x08010E50, 0x00000000,
-            0x08010E4C, 0x00000000, 0x08010E27, 0x00000000,
-            0x08010428, 0xDFF47000, 0x08010429, 0x00000000,
-            0x08010E03, 0x00000C23, 0x08010E03, 0x00000C23
-        },
-        {
-            0x00000001, 0x00020001, 0x00000001, 0x00000001,
-            0x00000000, 0x00000000, 0xA0003E1B, 0x00000000,
-            0x00010001, 0x00010001, 0xDFF6F000, 0xDFF62000,
-            0xC0000002, 0xDFF6E000, 0x00000000, 0x00000000,
-            0x00010001, 0x00000000, 0x00000000, 0x00010001,
-            0x00000001, 0x00000000, 0x00010020, 0x00000000,
-            0x0000240A, 0x00000000, 0x03FFFFFF, 0x00000000,
-            0x03FFFFFF, 0x00000000, 0x00008100, 0x00000000,
-            0x00000001, 0x00020001, 0x00000001, 0x00000001,
-            0x00000000, 0x00000000, 0xA0003E1B, 0x00000000,
-            0x00010001, 0x00010001, 0xDFF6F000, 0xDFF62140,
-            0x80000002, 0xDFF6E020, 0x00000000, 0x00000000,
-            0x00010001, 0x00000000, 0x00000000, 0x00010001,
-            0x00000001, 0x00000000, 0x00010020, 0x00000000,
-            0x0000240A, 0x00000000, 0x03FFFFFF, 0x00000000,
-            0x03FFFFFF, 0x00000000, 0x00008100, 0x00000000
-        },
-        {
-            0x00000021, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0xFFFFFFF0, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-            0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-            0x0000000F, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0xFFFFFFF0, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-            0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-            0x0000000F, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000021, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0xFFFFFFF0, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-            0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-            0x0000000F, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000,
-            0xFFFFFFF0, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-            0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-            0x0000000F, 0x00000000, 0x00000000, 0x00000000,
-            0x00000000, 0x00000000, 0x00000000, 0x00000000
-        },
-        {
-            0x08010E4F, 0x00000000, 0x08010E50, 0x00000000,
-            0x08010E53, 0x00000000, 0x08010E27, 0x00000000,
-            0x0801042E, 0xDFF61001, 0x08010E4F, 0x00000000,
-            0x08010E50, 0x00000000, 0x08010E53, 0x00000000,
-            0x08010E27, 0x00000000, 0x0801042E, 0xDFF61080,
-            0x08010429, 0x00000000, 0x08010E03, 0x00000C23,
-            0x08010E03, 0x00000C23
-        }
-    },
+static chipCmdData chipcmd[] = {
     {
         0x8000, /* ChipID */
         0x7004, /* ChipRevision */
@@ -494,6 +371,123 @@ static chipCmdData chipcmd[]={
             0x08010429, 0x00000000, 0x08010E03, 0x00000C23,
             0x08010E03, 0x00000C23
         },
+    },
+    {
+        0x8000, /* ChipID */
+        0x7004, /* ChipRevision */
+        0x45080009, /* ProductID */
+        0x1, /* EcoID */
+        0x7d, /* CustomerID */
+        0x0,
+        0, /*InputDataType*/
+        0x0C0,
+        0x00000040,
+        9,
+        2, /*TPCoreCount*/
+        0x00000280,
+        0x00000068,
+        {
+            9, 19
+        },
+        {
+            0xA0100048, 0x001000C0, 0xC8000000, 0x00080080,
+            0x02084001, 0x037FD200, 0xDFF6F000, 0xDFF6E000,
+            0x00012004, 0x00000000, 0x00000000, 0x00000800,
+            0x00000880, 0x00000000, 0x00000800, 0x00000000,
+            0x00020003, 0x01000002, 0x00000000, 0x03FFFFFF,
+            0x00000000, 0x03FFFFFF, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000
+        },
+        {
+            0x00000040, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0xFF000100, 0x00000000, 0x00FFFFFF, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000
+        },
+        {
+            0x08010E4F, 0x00000000, 0x08010E50, 0x00000000,
+            0x08010E4C, 0x00000000, 0x08010E27, 0x00000000,
+            0x08010428, 0xDFF47000, 0x08010429, 0x00000000,
+            0x08010E03, 0x00000C23, 0x08010E03, 0x00000C23
+        },
+        {
+            0x00000001, 0x00020001, 0x00000001, 0x00000001,
+            0x00000000, 0x00000000, 0xA0003E1B, 0x00000000,
+            0x00010001, 0x00010001, 0xDFF6F000, 0xDFF62000,
+            0xC0000002, 0xDFF6E000, 0x00000000, 0x00000000,
+            0x00010001, 0x00000000, 0x00000000, 0x00010001,
+            0x00000001, 0x00000000, 0x00010020, 0x00000000,
+            0x0000240A, 0x00000000, 0x03FFFFFF, 0x00000000,
+            0x03FFFFFF, 0x00000000, 0x00008100, 0x00000000,
+            0x00000001, 0x00020001, 0x00000001, 0x00000001,
+            0x00000000, 0x00000000, 0xA0003E1B, 0x00000000,
+            0x00010001, 0x00010001, 0xDFF6F000, 0xDFF62140,
+            0x80000002, 0xDFF6E020, 0x00000000, 0x00000000,
+            0x00010001, 0x00000000, 0x00000000, 0x00010001,
+            0x00000001, 0x00000000, 0x00010020, 0x00000000,
+            0x0000240A, 0x00000000, 0x03FFFFFF, 0x00000000,
+            0x03FFFFFF, 0x00000000, 0x00008100, 0x00000000
+        },
+        {
+            0x00000021, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0xFFFFFFF0, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+            0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+            0x0000000F, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0xFFFFFFF0, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+            0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+            0x0000000F, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000021, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0xFFFFFFF0, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+            0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+            0x0000000F, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000,
+            0xFFFFFFF0, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+            0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+            0x0000000F, 0x00000000, 0x00000000, 0x00000000,
+            0x00000000, 0x00000000, 0x00000000, 0x00000000
+        },
+        {
+            0x08010E4F, 0x00000000, 0x08010E50, 0x00000000,
+            0x08010E53, 0x00000000, 0x08010E27, 0x00000000,
+            0x0801042E, 0xDFF61001, 0x08010E4F, 0x00000000,
+            0x08010E50, 0x00000000, 0x08010E53, 0x00000000,
+            0x08010E27, 0x00000000, 0x0801042E, 0xDFF61080,
+            0x08010429, 0x00000000, 0x08010E03, 0x00000C23,
+            0x08010E03, 0x00000C23
+        }
     },
     {
         0x8000, /* ChipID */
@@ -1171,42 +1165,34 @@ static chipCmdData chipcmd[]={
 };
 
 static chipCmdData*
-gcQuerychipCmdDB(
-    gctUINT32 CustomerID,
-    gctUINT32 ChipID,
-    gctUINT32 ChipVersion,
-    gctUINT32 ProductID,
-    gctUINT32 EcoID
-    )
+gcQuerychipCmdDB(gctUINT32 CustomerID,
+                 gctUINT32 ChipID,
+                 gctUINT32 ChipVersion,
+                 gctUINT32 ProductID,
+                 gctUINT32 EcoID)
 {
     gctINT entryNum = sizeof(chipcmd) / sizeof(chipcmd[0]);
     gctINT i;
 
     /* check formal release entries first */
-    for (i = 0; i < entryNum; ++i)
-    {
-        if ((chipcmd[i].customerID == CustomerID)
-            && (chipcmd[i].ChipID == ChipID)  /*chipmodel*/
-            && (chipcmd[i].ChipVersion == ChipVersion)
-            && (chipcmd[i].ProductID == ProductID)
-            && (chipcmd[i].EcoID == EcoID)
-            && (chipcmd[i].formalRelease))
-        {
+    for (i = 0; i < entryNum; ++i) {
+        if (chipcmd[i].customerID == CustomerID &&
+            chipcmd[i].ChipID == ChipID && /*chipmodel*/
+            chipcmd[i].ChipVersion == ChipVersion &&
+            chipcmd[i].ProductID == ProductID &&
+            chipcmd[i].EcoID == EcoID &&
+            chipcmd[i].formalRelease)
             return &chipcmd[i];
-        }
     }
 
-    for (i = 0; i < entryNum; ++i)
-    {
-        if ((chipcmd[i].customerID == CustomerID)
-            && (chipcmd[i].ChipID == ChipID)
-            && ((chipcmd[i].ChipVersion & 0xFFF0) == (ChipVersion & 0xFFF0))
-            && (chipcmd[i].ProductID == ProductID)
-            && (chipcmd[i].EcoID == EcoID)
-            && (!chipcmd[i].formalRelease))
-        {
+    for (i = 0; i < entryNum; ++i) {
+        if (chipcmd[i].customerID == CustomerID &&
+            chipcmd[i].ChipID == ChipID &&
+            (chipcmd[i].ChipVersion & 0xFFF0) == (ChipVersion & 0xFFF0) &&
+            chipcmd[i].ProductID == ProductID &&
+            chipcmd[i].EcoID == EcoID &&
+            !chipcmd[i].formalRelease)
             return &chipcmd[i];
-        }
     }
     return gcvNULL;
 }

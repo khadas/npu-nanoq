@@ -29,6 +29,7 @@
 #define OPENVX_KHR_NN   "vx_khr_nn"
 
 #include <VX/vx.h>
+#include <VX/vx_khr_compatible.h>
 #include <VX/vx_khr_nn_internal.h>
 
 
@@ -56,6 +57,12 @@ enum vx_graph_attribute_internal_type_e
     VX_GRAPH_AXI_SRAM_PRE_LOAD                    =  VX_ATTRIBUTE_BASE(VX_ID_VIVANTE, VX_TYPE_GRAPH) + 0x2,
     /*! \brief Queries a graph for its running priority (read-write. Use a <tt>\ref vx_uint32</tt> parameter. */
     VX_GRAPH_PRIORITY_VALUE_VIV                   =  VX_ATTRIBUTE_BASE(VX_ID_VIVANTE, VX_TYPE_GRAPH) + 0x3,
+    VX_GRAPH_PSI_EXTRATOR_PARAMETER               = VX_ATTRIBUTE_BASE(VX_ID_VIVANTE, VX_TYPE_GRAPH) + 0x4,
+    VX_GRAPH_PSI_FILLER_PARAMETER                 = VX_ATTRIBUTE_BASE(VX_ID_VIVANTE, VX_TYPE_GRAPH) + 0x5,
+    VX_GRAPH_DENOISE_POSTPROCESS_PARAMETER        = VX_ATTRIBUTE_BASE(VX_ID_VIVANTE, VX_TYPE_GRAPH) + 0x6,
+    VX_GRAPH_DATA_COMPRESSION_RATIO               = VX_ATTRIBUTE_BASE(VX_ID_VIVANTE, VX_TYPE_GRAPH) + 0x7,
+    VX_GRAPH_ISP_EMULATION_PARAMETER              = VX_ATTRIBUTE_BASE(VX_ID_VIVANTE, VX_TYPE_GRAPH) + 0x8,
+    VX_GRAPH_PROCESS_FPS                          = VX_ATTRIBUTE_BASE(VX_ID_VIVANTE, VX_TYPE_GRAPH) + 0x9,
 };
 
 /*! \brief Size Alignment of User Memory
@@ -208,7 +215,8 @@ enum vx_nn_activation_function_e
     VX_NN_ACTIVATION_LEAKYRELU_MAX_POOLING = VX_ENUM_BASE(VX_ID_VIVANTE, VX_ENUM_NN_ACTIVATION_FUNCTION_TYPE) + 0x4,
     VX_NN_ACTIVATION_SWISH = VX_ENUM_BASE(VX_ID_VIVANTE, VX_ENUM_NN_ACTIVATION_FUNCTION_TYPE) + 0x5,
     VX_NN_ACTIVATION_HSWISH = VX_ENUM_BASE(VX_ID_VIVANTE, VX_ENUM_NN_ACTIVATION_FUNCTION_TYPE) + 0x6,
-    VX_NN_ACTIVATION_NONE = VX_ENUM_BASE(VX_ID_VIVANTE, VX_ENUM_NN_ACTIVATION_FUNCTION_TYPE) + 0x7,
+    VX_NN_ACTIVATION_CUSTOM = VX_ENUM_BASE(VX_ID_VIVANTE, VX_ENUM_NN_ACTIVATION_FUNCTION_TYPE) + 0x7,
+    VX_NN_ACTIVATION_NONE = VX_ENUM_BASE(VX_ID_VIVANTE, VX_ENUM_NN_ACTIVATION_FUNCTION_TYPE) + 0x8,
 };
 
 /*! \brief  The Convolutional network type
@@ -284,6 +292,59 @@ enum vx_tensor_rank_type_e
     VX_TENSOR_RANK_SN,
 };
 
+/*! \brief The attribute of tensor.
+ * \ingroup group_tensor
+ * \version 0.4
+ */
+enum vx_tensor_priority_e
+{
+    /*! \brief no special requirement */
+    VX_TENSOR_DEFAULT = 0,
+
+    /*! \brief  2nd input(reference) */
+    /*VX_TENSOR_2ND_INPUT_FOR       = 1,*/
+    VX_TENSOR_FOR_GRAPH_REFERENCE = 1,
+};
+
+
+/*! \brief The attribute of tensor memory.
+ * \ingroup group_tensor
+ * \version 0.4
+ */
+enum vx_tensor_memory_attribute_e
+{
+    /*! \brief no special requirement */
+    VX_TENSOR_MEMORY_DEFAULT = 0,
+
+    VX_TENSOR_MEMORY_CONNECT_DMA_CHANNEL_0 = (0x1 << 0),
+    VX_TENSOR_MEMORY_CONNECT_DMA_CHANNEL_1 = (0x1 << 1),
+    VX_TENSOR_MEMORY_CONNECT_DMA_CHANNEL_2 = (0x1 << 2),
+    VX_TENSOR_MEMORY_CONNECT_DMA_CHANNEL_3 = (0x1 << 3),
+    VX_TENSOR_MEMORY_CONNECT_DMA_CHANNEL_4 = (0x1 << 4),
+    /*
+    VX_TENSOR_MEMORY_CONNECT_DMA_CHANNEL_5 = (0x1 << VX_DMA5_IN_ISP_OCM_PSI),
+    VX_TENSOR_MEMORY_CONNECT_DMA_CHANNEL_6 = (0x1 << VX_DMA6_DDR_DECOMPRESS),
+    VX_TENSOR_MEMORY_CONNECT_DMA_CHANNEL_7 = (0x1 << VX_DMA7_POSTOUT_OCM_ISP),
+    VX_TENSOR_MEMORY_CONNECT_DMA_CHANNEL_8 = (0x1 << VX_DMA8_COMPRESS_DDR),
+    VX_TENSOR_MEMORY_CONNECT_DMA_CHANNEL_9 = (0x1 << VX_DMA9_ISP_PATTERN_GENERATOR),
+    VX_TENSOR_MEMORY_CONNECT_DMA_CHANNEL_10 = (0x1 << VX_DMA10_ISP_CHECKSUM_GENERATOR),
+    */
+    /*! \brief DMA transfer data to VIP and enable circular buffer */
+#if !VX_TENSOR_MEMORY_CONNECT_DMA_CHANNEL
+    VX_TENSOR_MEMORY_ENABLE_CIRCULAR_BY_DMA = 0xFFFFFFFF,
+#endif
+};
+
+enum vx_dma_extrator_pad_mode_e
+{
+    /*! \brief no special requirement */
+    VX_DMA_EXTRATOR_PAD_CONST = 0,
+
+    /*! \brief DMA extrator pad with nearest edge */
+    VX_DMA_EXTRATOR_PAD_WITH_NEAREAST_EDGE = 1,
+};
+
+
 /*! \brief The precision of tensor.
  * \ingroup group_tensor
  * \version 0.4
@@ -310,10 +371,71 @@ enum vx_tensor_lifetime_type_e
     VX_TENSOR_LIFE_TIME_DYNAMIC,
 };
 
+typedef struct _vx_nn_convolution_3d_params_t
+{
+    vx_int32 padding_w_left;                 /*!< \brief Number of elements added at each side in the left of w dimension of the input. */
+    vx_int32 padding_w_right;                /*!< \brief Number of elements added at each side in the right of w dimension of the input. */
+    vx_int32 padding_h_top;                  /*!< \brief Number of elements added at each side in the top of h dimension of the input. */
+    vx_int32 padding_h_bottom;               /*!< \brief Number of elements added at each side in the bottom of h dimension of the input. */
+    vx_int32 padding_d_front;                /*!< \brief Number of elements added at each side in the front of d dimension of the input. */
+    vx_int32 padding_d_rear;                 /*!< \brief Number of elements added at each side in the rear of d dimension of the input. */
+
+    vx_int32 stride_w;                       /*!< \brief  skip w jump for down scale.  */
+    vx_int32 stride_h;                       /*!< \brief  skip h jump for down scale.  */
+    vx_int32 stride_d;                       /*!< \brief  skip d jump for down scale.  */
+    vx_int32 dilation_w;                     /*!< \brief "inflate" the kernel by inserting zeros between the kernel elements in the w direction. The value is the number of zeros to insert.*/
+    vx_int32 dilation_h;                     /*!< \brief "inflate" the kernel by inserting zeros between the kernel elements in the h direction. The value is the number of zeros to insert.*/
+    vx_int32 dilation_d;                     /*!< \brief "inflate" the kernel by inserting zeros between the kernel elements in the d direction. The value is the number of zeros to insert.*/
+
+    vx_enum pad_mode;                       /*!< \brief A VX_TYPE_ENUM of the <tt> \ref vx_pad_mode_e </tt> enumeration. */
+    vx_scalar pad_const;                    /*!< \brief pad const value if setting pad mode to const, the const value is base value, not quantized value. */
+
+    vx_enum overflow_policy;                /*!< \brief A <tt> VX_TYPE_ENUM</tt> of the <tt> vx_convert_policy_e</tt> enumeration. */
+    vx_enum rounding_policy;                /*!< \brief A <tt> VX_TYPE_ENUM</tt> of the <tt> vx_round_policy_e</tt> enumeration. */
+    vx_enum down_scale_size_rounding;       /*!< \brief Rounding method for calculating output dimensions. See <tt>\ref vx_nn_rounding_type_e</tt> */
+
+    vx_int32 depth_multiplier;              /*!< \brief depthwise multiplier value, if 0, means convolution, elsewise(>=1), the convolution is depthwiseconvolution. */
+}vx_nn_convolution_3d_params_t;
+
+typedef struct _vx_nn_deconvolution_3d_params_t
+{
+    vx_int32 padding_w_left;                /*!< \brief Number of elements subtracted at left of the w dimension of the input. */
+    vx_int32 padding_w_right;               /*!< \brief Number of elements subtracted at right of the w dimension of the input. */
+    vx_int32 padding_h_top;                 /*!< \brief Number of elements subtracted at top of the h dimension of the input. */
+    vx_int32 padding_h_bottom;              /*!< \brief Number of elements subtracted at bottom of the h dimension of the input. */
+    vx_int32 padding_d_front;               /*!< \brief Number of elements subtracted at front of the d dimension of the input. */
+    vx_int32 padding_d_rear;                /*!< \brief Number of elements subtracted at end of the d dimension of the input. */
+
+    vx_int32 stride_w;                      /*!< \brief  inter 0 between input elements at w direction for down scale.  */
+    vx_int32 stride_h;                      /*!< \brief  inter 0 between input elements at h direction for down scale.  */
+    vx_int32 stride_d;                      /*!< \brief  inter 0 between input elements at d direction for down scale.  */
+
+    vx_int32 a_w;                            /*!< \brief user-specified quantity used to distinguish between the \f$upscale_w\f$ different possible output sizes. */
+    vx_int32 a_h;                            /*!< \brief user-specified quantity used to distinguish between the \f$upscale_h\f$ different possible output sizes. */
+    vx_int32 a_d;                            /*!< \brief user-specified quantity used to distinguish between the \f$upscale_d\f$ different possible output sizes. */
+
+    vx_int32 channel_group;                 /*!< \brief  Number of separate groups for deconvolution (Range: 0 <= groups <= size of z dimension of input; size of z dimension of input can be divided by groups) */
+
+    vx_enum overflow_policy;                /*!< \brief A <tt> VX_TYPE_ENUM</tt> of the <tt> vx_convert_policy_e</tt> enumeration. */
+    vx_enum rounding_policy;                /*!< \brief A <tt> VX_TYPE_ENUM</tt> of the <tt> vx_round_policy_e</tt> enumeration. */
+    vx_enum down_scale_size_rounding;       /*!< \brief Rounding method for calculating output dimensions. See <tt>\ref vx_nn_rounding_type_e</tt> */
+}vx_nn_deconvolution_3d_params_t;
+
 /*==============================================================================
     TENSOR DATA FUNCTIONS
 =============================================================================*/
-
+#if VX_VA40_EXT_SUPPORT
+/*! \brief Create  an opaque reference to a tensor view object.
+ * \details Not guaranteed to exist until the <tt>vx_graph</tt> containing it has been verified.
+ * \param [in] context The reference to the implementation context.
+ * \param [in] view_array_start a vx_size array of start values of the view.
+ * \param [in] view_array_end a vx_size array of end values of the view.
+ * \param [in] numViewDimensions number of dimensions of view_array_start and view_array_end.
+ * \return A tensor data view reference or zero when an error is encountered.
+ * \ingroup group_tensor
+ */
+VX_API_ENTRY vx_tensor_view VX_API_CALL vxCreateTensorView(vx_context context, vx_size* view_array_start, vx_size* view_array_end, vx_size numViewDimensions);
+#else
 /*! \brief Create  an opaque reference to a tensor view object.
  * \details Not guaranteed to exist until the <tt>vx_graph</tt> containing it has been verified.
  * \param [in] context The reference to the implementation context.
@@ -324,6 +446,7 @@ enum vx_tensor_lifetime_type_e
  * \ingroup group_tensor
  */
 VX_API_ENTRY vx_tensor_view VX_API_CALL vxCreateTensorView(vx_context context, vx_uint32 *view_array_start, vx_uint32 * view_array_end, vx_uint8 numViewDimensions);
+#endif
 
 /*! \brief Releases a reference to a tensor data view object.
 * The object may not be garbage collected until its total reference count is zero.
@@ -337,6 +460,18 @@ VX_API_ENTRY vx_tensor_view VX_API_CALL vxCreateTensorView(vx_context context, v
 */
 VX_API_ENTRY vx_status VX_API_CALL vxReleaseTensorView(vx_tensor_view *tensor_view);
 
+#if VX_VA40_EXT_SUPPORT
+/*! \brief Create  an opaque reference to a tensor addressing object.
+* \details Not guaranteed to exist until the <tt>vx_graph</tt> containing it has been verified.
+* \param [in] context The reference to the implementation context.
+* \param [in] addressing_array_dimension a vx_size array of sLength of patch in all dimensions in elements.
+* \param [in] addressing_array_stride a vx_size arrayStride in all dimensions in bytes.
+* \param [in] numViewDimensions number of dimensions of view_array_start and view_array_end.
+* \return A tensor data view reference or zero when an error is encountered.
+* \ingroup group_tensor
+*/
+VX_API_ENTRY vx_tensor_addressing VX_API_CALL vxCreateTensorAddressing(vx_context context, vx_size* addressing_array_dimension, vx_size* addressing_array_stride, vx_size numViewDimensions);
+#else
 /*! \brief Create  an opaque reference to a tensor addressing object.
 * \details Not guaranteed to exist until the <tt>vx_graph</tt> containing it has been verified.
 * \param [in] context The reference to the implementation context.
@@ -346,7 +481,8 @@ VX_API_ENTRY vx_status VX_API_CALL vxReleaseTensorView(vx_tensor_view *tensor_vi
 * \return A tensor data view reference or zero when an error is encountered.
 * \ingroup group_tensor
 */
-VX_API_ENTRY vx_tensor_addressing VX_API_CALL vxCreateTensorAddressing(vx_context context, vx_uint32 *addressing_array_dimension, vx_uint32 * addressing_array_stride, vx_uint8 numViewDimensions);
+VX_API_ENTRY vx_tensor_addressing VX_API_CALL vxCreateTensorAddressing(vx_context context, vx_uint32 * addressing_array_dimension, vx_uint32 * addressing_array_stride, vx_uint8 numViewDimensions);
+#endif
 
 /*! \brief Releases a reference to a tensor data addressing object.
 * The object may not be garbage collected until its total reference count is zero.
@@ -402,7 +538,11 @@ typedef union _vx_tensor_quant_param
 typedef struct _vx_tensor_create_params_t
 {
     vx_uint32       num_of_dims; /*!< \brief The number of dimensions specified in *sizes*/
+#if VX_VA40_EXT_SUPPORT
+    vx_size *       sizes;       /*!< \brief The pointer to an array of dimension */
+#else
     vx_uint32 *     sizes;       /*!< \brief The pointer to an array of dimension */
+#endif
     vx_enum         data_format; /*!< \brief Data format for the tensor */
     vx_enum         quant_format; /*!< \brief Quantized format <tt>\ref vx_quantized_format_e </tt>. */
     vx_tensor_quant_param quant_data;
@@ -482,7 +622,19 @@ VX_API_ENTRY vx_tensor VX_API_CALL vxCreateTensorFromHandle2(
 */
 VX_API_ENTRY vx_status VX_API_CALL vxFlushHandle(vx_reference ref);
 
-
+#if VX_VA40_EXT_SUPPORT
+/*! \brief Return a new tensor referencing the same memory location but with different shape.
+* \param [in] tensor The input tensor data to reshape.
+* \param [in] num_of_dims Size of each dimension. If one component is special value -1,
+* the size of that dimension is computed so that the total size remains the same as input tensor.
+* If is is [-1], then flatten is performed which turns tensor into 1-D.
+* \param [in] sizes The size of the container to which \a num_of_dims points.
+* \return a vx_tensor that has shaped.
+* \return VX_NULL if an error occurred.
+* \ingroup group_tensor
+*/
+VX_API_ENTRY vx_tensor VX_API_CALL vxReshapeTensor(vx_tensor tensor, vx_size* num_of_dims, vx_size sizes);
+#else
 /*! \brief Return a new tensor referencing the same memory location but with different shape.
 * \param [in] tensor The input tensor data to reshape.
 * \param [in] num_of_dims Size of each dimension. If one component is special value -1,
@@ -494,6 +646,7 @@ VX_API_ENTRY vx_status VX_API_CALL vxFlushHandle(vx_reference ref);
 * \ingroup group_tensor
 */
 VX_API_ENTRY vx_tensor VX_API_CALL vxReshapeTensor(vx_tensor tensor, vx_int32* num_of_dims, vx_uint32 sizes);
+#endif
 
 /*! \brief Allows setting attributes on the tensor.
  * \param [in] tensor The reference to the tensor on which to set the attribute.
@@ -507,6 +660,19 @@ VX_API_ENTRY vx_tensor VX_API_CALL vxReshapeTensor(vx_tensor tensor, vx_int32* n
  * \ingroup group_tensor
  */
 VX_API_ENTRY vx_status VX_API_CALL vxSetTensorAttribute(vx_tensor tensor, vx_enum attribute, const void *ptr, vx_size size);
+
+/*! \brief Creates an opaque reference to a tensor data buffer.
+ * \details The tensor is a dummy tensor which will not allocate any memory. And it cannot reshape or view.
+ * Not guaranteed to exist until the <tt>vx_graph</tt> containing it has been verified.
+ * \param [in] context The reference to the implementation context.
+ * \param [in] number_of_dims The number of dimensions.
+ * \param [in] dims Dimensions sizes in elements.
+ * \param [in] data_format The <tt>\ref vx_type_e</tt> that represents the data format of the tensor data elements.
+ * \return A tensor data reference or zero when an error is encountered.
+ * \ingroup group_tensor
+ * \version 0.3
+ */
+VX_API_ENTRY vx_tensor VX_API_CALL vxCreateDummyTensor(vx_context context, vx_size number_of_dims, const vx_size *dims, vx_enum data_format);
 
 
 /*! \brief The type enumeration lists all NN extension types.
@@ -1224,6 +1390,13 @@ typedef struct _vx_nn_scale_params_t
     vx_enum type;             /*!< \brief  The interpolation type, only support VX_INTERPOLATION_BILINEAR.  */
 } vx_nn_scale_params_t, * vx_nn_scale_params;
 
+typedef struct _vx_nn_scale_params_ext_t
+{
+    vx_nn_scale_params_t base;
+    vx_bool align_corners;
+    vx_bool half_pixel_centers;
+} vx_nn_scale_params_ext_t, * vx_nn_scale_params_ext;
+
 /*! \brief [Graph] Creates a scale Layer Node.
  * \param [in] graph The reference to the parent graph.
  * \param [in] input The input tensor data to scale.
@@ -1570,7 +1743,6 @@ typedef struct _vx_nn_pad_params_t
     vx_uint8   numViewDimensions;         /*!< \brief The size of two arrays. */
     vx_enum    pad_mode;                  /*!< \brief A VX_TYPE_ENUM of the <tt>\ref vx_pad_mode_e</tt> enumeration. */
     vx_scalar  pad_const;                 /*!< \brief The order const value if setting pad mode to const, the const value is base value, not quantized value. */
-
 } vx_nn_pad_params_t, * vx_nn_pad_params;
 
 
@@ -1961,7 +2133,15 @@ typedef struct _vx_hardware_caps_params_ext_t
 {
     vx_hardware_caps_params_t base;
     vx_uint32 subGroupSize;        /*!< \brief  shader sub-group size.*/
+    vx_bool   supportVA40;         /*!< \brief  support 40bit virtual address.*/
+    vx_uint32 supportStreamProcessor; /*!< \brief  support stream processor.*/
 } vx_hardware_caps_params_ext_t;
+
+typedef struct _vx_hardware_caps_params_ext2_t
+{
+    vx_hardware_caps_params_ext_t base;
+    vx_uint32 streamProcessorExecCount;     /*!< \brief  streamprocess execution count.  */
+} vx_hardware_caps_params_ext2_t;
 
 /*! \brief Queries hardware caps information.
  * \param [in] context The reference to the context.
@@ -1978,6 +2158,88 @@ VX_API_ENTRY vx_status VX_API_CALL vxQueryHardwareCaps(
     const vx_hardware_caps_params_t   * hardware_caps_params,
     vx_size                             size_of_hardware_caps_param
     );
+
+/*! \brief [Graph] Creates a Convolutional-3d Network Convolution Layer Node.
+ * \details This function implement Convolutional-3d Network Convolution layer.
+ *  For fixed-point data types, a fixed point calculation is performed with round and saturate according to the number of accumulator bits. The number of the accumulator bits are implementation defined,
+ * and should be at least 16.\n
+ * round: rounding according the <tt>vx_round_policy_e</tt> enumeration. \n
+ * saturate: A saturation according the <tt>vx_convert_policy_e</tt> enumeration.
+ * \param [in] graph The handle to the graph.
+ * \param [in] inputs The input tensor data. 4 lower dimensions represent a single input, all following dimensions represent number of batches, possibly nested.
+ * The dimension order is [width, height, depth, #IFM, #batches].\n
+ * \param [in] weights [*static] Weights are 5d tensor with dimensions [kernel_x, kernel_y, kernel_d, #IFM, #OFM].
+ * see <tt>\ref vxCreateTensor2</tt> and <tt>\ref vxCreateVirtualTensor2</tt> \n Weights data type must match the data type of the inputs.  (Kernel parameter #1)
+ * \param [in] biases [*static] Optional, ignored if NULL. The biases, which may be shared (one per ofm) or unshared (one per ofm * output location). The possible layouts are
+ * either [#OFM] or [width, height, #OFM]. Biases data type must match the data type of the inputs.
+ * \param [in] convolution_params [static] Pointer to parameters of type <tt>\ref vx_nn_convolution_3d_params_t</tt>.
+ * \param [in] size_of_convolution_params [static] Size in bytes of convolution_params. Note that this parameter is not counted as one of the kernel parameters.
+ * \param [out] outputs The output tensor data. Output will have the same number and structure of dimensions as input. Output tensor data type must be same as the inputs.
+ * \return <tt> vx_node</tt>.
+ * \returns A node reference <tt>\ref vx_node</tt>. Any possible errors preventing a
+ * successful creation should be checked using <tt>\ref vxGetStatus</tt>.
+ * \ingroup group_cnn
+ */
+VX_API_ENTRY vx_node VX_API_CALL vxConv3dLayer(vx_graph graph, vx_tensor inputs, vx_tensor weights, vx_tensor biases, const vx_nn_convolution_3d_params_t *convolution_params, vx_size size_of_convolution_params, vx_tensor outputs);
+
+/*! \brief [Graph] Creates a Convolutional Network Deconvolution3d Layer Node.
+ * \details  Deconvolution denote a sort of reverse convolution, which importantly and confusingly is not actually a proper mathematical deconvolution.
+ * Convolutional Network Deconvolution is up-sampling of an image by learned Deconvolution coefficients.
+ * The operation is similar to convolution but can be implemented by up-sampling the inputs with zeros insertions between the inputs,
+ * and convolving the Deconvolution kernels on the up-sampled result.
+ * For fixed-point data types, a fixed point calculation is performed with round and saturate according to the number of accumulator bits. The number of the accumulator bits are implementation defined,
+ * and should be at least 16.\n
+ * round: rounding according the <tt>vx_round_policy_e</tt> enumeration. \n
+ * saturate: A saturation according the <tt>vx_convert_policy_e</tt> enumeration.
+ * The following equation is implemented: \n
+ * \f$ outputs[j,k,i] =  saturate(round(\sum_{l} \sum_{m,n}(inputs_{upscaled}[j+m,k+n,l] \times weights[m,n,l,i])+biasses[j,k,i])) \f$\n
+ * Where \f$m,n\f$ are indexes on the convolution matrices. \f$ l\f$ is an index on all the convolutions per input.\f$ i\f$ is an index per output.
+ * \f$ j,k \f$ are the inputs/outputs spatial indexes.
+ * Deconvolution is done on the width and height dimensions of the <tt>\ref vx_tensor</tt>. Therefore, we use here the term x for the width dimension and y for the height dimension.\n
+ * before the Deconvolution is done, up-scaling the width and height dimensions with zeros is performed.
+ * The relation between input to output is as follows: \n
+ * \f$ width_{output} =  (width_{input} -1) * upscale_x  - 2 * padding_x + kernel_x + a_x \f$\n
+ * and \n
+ * \f$ height_{output} =  (height_{input} - 1) * upscale_y - 2 * padding_y + kernel_y + a_y \f$\n
+ * \f$ depth_{output} =  (depth_{input} - 1) * upscale_d - 2 * padding_d + kernel_d + a_d \f$\n
+ * where
+ *   \f$width_{input}\f$ is the size of the input width dimension.
+ *   \f$height_{input}\f$ is the size of the input height dimension.
+ *   \f$depth_{input}\f$ is the size of the input depth dimension.
+ *
+ *   \f$width_{output}\f$ is the size of the output width dimension.
+ *   \f$height_{output}\f$ is the size of the output height dimension.
+ *   \f$depth_{output}\f$ is the size of the output depth dimension.
+ *
+ *   \f$kernel_x\f$, \f$kernel_y\f$ and \f$kernel_d\f$ are the deconvolutioned sizes in width, height and depth.
+ *   \f$a_x\f$ and \f$a_y\f$ are user-specified quantity used to distinguish between the \f$upscale_x\f$ and \f$upscale_y\f$ different possible output sizes.
+ *   \f$upscale_x\f$, \f$upscale_y\f$ and \f$upscale_d\f$ are calculated by the relation between input and output.
+ * \f$a_x\f$ and \f$a_y\f$ must be positive and smaller then \f$upscale_x\f$ and \f$upscale_y\f$ respectively.
+ * Since the padding parameter is on the output. The effective input padding is: \n
+ * \f$ padding_{input_x} = kernel_x -padding_x -1\f$ \n
+ * \f$ padding_{input_y} = kernel_y -padding_y -1\f$ \n
+ * \f$ padding_{input_d} = kernel_d -padding_d -1\f$ \n
+ * Therfore the following constarints apply :
+ *      \f$kernel_x >= padding_x - 1\f$,
+ *      \f$kernel_y >= padding_y - 1\f$.
+ *      \f$kernel_d >= padding_d - 1\f$.
+ * rounding is done according to <tt>\ref vx_nn_rounding_type_e</tt>.
+ * Notice that this node creation function has more parameters than the corresponding kernel. Numbering of kernel parameters (required if you create this node using the generic interface) is explicitly specified here.
+ * \param [in] graph The handle to the graph.
+ * \param [in] inputs The input tensor. 4 lower dimensions represent a single input, and an optional 5th dimension for batch of inputs. Dimension layout is [width, height, depth, #IFM, #batches].
+ * See <tt>\ref vxCreateTensor2</tt> and <tt>\ref vxCreateVirtualTensor2</tt>.
+ * Implementations must support input tensor data types indicated by the extension strings 'KHR_NN_8' or 'KHR_NN_8 KHR_NN_16'.   (Kernel parameter #0)
+ * \param [in] weights [static] The 5d weights with dimensions [width, height, depth, #IFM, #OFM]. See <tt>\ref vxCreateTensor2</tt> and <tt>\ref vxCreateVirtualTensor2</tt>.  (Kernel parameter #1)
+ * \param [in] biases [static] Optional, ignored if NULL. The biases have one dimension [#OFM]. Implementations must support input tensor data type same as the inputs.  (Kernel parameter #2)
+ * \param [in] deconvolution_params [static] Pointer to parameters of type <tt>\ref vx_nn_deconvolution_params_t</tt>  (Kernel parameter #3)
+ * \param [in] size_of_deconv_params [static] Size in bytes of deconvolution_params. Note that this parameter is not counted as one of the kernel parameters.
+ * \param [out] outputs The output tensor. The output has the same number of dimensions as the input.  (Kernel parameter #4)
+ * \ingroup group_cnn
+ * \return <tt> vx_node</tt>.
+ * \returns A node reference <tt>\ref vx_node</tt>. Any possible errors preventing a
+ * successful creation should be checked using <tt>\ref vxGetStatus</tt>.
+ */
+VX_API_ENTRY vx_node VX_API_CALL vxDeconv3dLayer(vx_graph graph, vx_tensor inputs, vx_tensor weights, vx_tensor biases, const vx_nn_deconvolution_3d_params_t *convolution_params, vx_size size_of_deconv_params, vx_tensor outputs);
 
 #ifdef __cplusplus
 }

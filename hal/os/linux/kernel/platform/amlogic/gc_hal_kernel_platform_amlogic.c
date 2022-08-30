@@ -2,7 +2,7 @@
 *
 *    The MIT License (MIT)
 *
-*    Copyright (c) 2014 - 2018 Vivante Corporation
+*    Copyright (c) 2014 - 2022 Vivante Corporation
 *
 *    Permission is hereby granted, free of charge, to any person obtaining a
 *    copy of this software and associated documentation files (the "Software"),
@@ -26,7 +26,7 @@
 *
 *    The GPL License (GPL)
 *
-*    Copyright (C) 2014 - 2018 Vivante Corporation
+*    Copyright (C) 2014 - 2022 Vivante Corporation
 *
 *    This program is free software; you can redistribute it and/or
 *    modify it under the terms of the GNU General Public License
@@ -52,6 +52,7 @@
 *
 *****************************************************************************/
 
+
 #include <linux/io.h>
 #include <linux/kernel.h>
 #include <linux/clk.h>
@@ -72,7 +73,7 @@
 
 #define NN_PD_0X99 16
 /*======== power version 0 hardware reg begin ===========*/
-#define AO_RTI_BASE            0xff800000
+#define AO_RTI_BASE           0xff800000
 #define AO_RTI_GEN_PWR_SLEEP0 (AO_RTI_BASE + (0x3a<<2))
 #define AO_RTI_GEN_PWR_ISO0   (AO_RTI_BASE + (0x3b<<2))
 #define HHI_NANOQ_MEM_PD_REG0  0xff63c10c
@@ -339,7 +340,6 @@ void Getpower_99(struct platform_device *pdev)
 #if (LINUX_VERSION_CODE <= KERNEL_VERSION(4, 10, 0))
     power_domain_switch(NN_PD_0X99,PWR_ON);
 #endif
-
     set_clock(pdev);
 }
 void Getpower_a1(struct platform_device *pdev)
@@ -519,7 +519,6 @@ void Runtime_downpower_a1(struct platform_device *pdev)
     pm_runtime_disable(&pdev->dev);
     clk_switch(0);
 }
-
 void Runtime_getpower_be(struct platform_device *pdev)
 {
     int ret;
@@ -588,7 +587,7 @@ gceSTATUS _GetPower(IN gcsPLATFORM *Platform)
     return gcvSTATUS_OK;
 }
 
-gceSTATUS  _SetPower(IN gcsPLATFORM * Platform,IN gceCORE GPU,IN gctBOOL Enable)
+gceSTATUS  _SetPower(IN gcsPLATFORM * Platform,IN gctUINT32 DevIndex, IN gceCORE GPU,IN gctBOOL Enable)
 {
     struct platform_device *pdev = Platform->device;
     if (Enable == 0)
@@ -656,7 +655,7 @@ gceSTATUS  _SetPower(IN gcsPLATFORM * Platform,IN gceCORE GPU,IN gctBOOL Enable)
     return gcvSTATUS_OK;
 }
 
-gceSTATUS _Reset(IN gcsPLATFORM * Platform, IN gceCORE GPU)
+gceSTATUS _Reset(IN gcsPLATFORM * Platform, IN gctUINT32 DevIndex, IN gceCORE GPU)
 {
     struct platform_device *pdev = Platform->device;
     powerStatus = POWER_RESET;

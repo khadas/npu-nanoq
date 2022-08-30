@@ -2,7 +2,7 @@
 #
 #    The MIT License (MIT)
 #
-#    Copyright (c) 2014 - 2021 Vivante Corporation
+#    Copyright (c) 2014 - 2022 Vivante Corporation
 #
 #    Permission is hereby granted, free of charge, to any person obtaining a
 #    copy of this software and associated documentation files (the "Software"),
@@ -26,7 +26,7 @@
 #
 #    The GPL License (GPL)
 #
-#    Copyright (C) 2014 - 2021 Vivante Corporation
+#    Copyright (C) 2014 - 2022 Vivante Corporation
 #
 #    This program is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU General Public License
@@ -83,6 +83,7 @@ SOC_PLATFORM_OBJS ?= $(SOC_PLATFORM_LOCATION)/gc_hal_kernel_platform_$(soc_board
 
 ifeq ($(CONFIG_KASAN),)
 EXTRA_CFLAGS += -Werror -Wno-implicit-fallthrough
+ccflags-$(CONFIG_WERROR) += -Werror
 endif
 
 OBJS := $(OS_KERNEL_DIR)/gc_hal_kernel_device.o \
@@ -189,7 +190,7 @@ EXTRA_CFLAGS += -DFLAREON
 endif
 
 ifeq ($(DEBUG),1)
-EXTRA_CFLAGS += -DDBG=1 -DDEBUG -D_DEBUG
+EXTRA_CFLAGS += -DDBG=1 -DDEBUG -D_DEBUG -g
 else
 EXTRA_CFLAGS += -DDBG=0
 endif
@@ -292,6 +293,10 @@ endif
 EXTRA_CFLAGS += -DHOST=\"$(HOST)\"
 
 EXTRA_CFLAGS += -DgcdENABLE_TRUST_APPLICATION=1
+
+ifeq ($(ENABLE_VIDEO_MEMORY_MIRROR),1)
+EXTRA_CFLAGS += -DgcdENABLE_VIDEO_MEMORY_MIRROR=1
+endif
 
 obj-m = $(MODULE_NAME).o
 

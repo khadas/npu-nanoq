@@ -1,6 +1,6 @@
 /****************************************************************************
 *
-*    Copyright (c) 2005 - 2021 by Vivante Corp.  All rights reserved.
+*    Copyright (c) 2005 - 2022 by Vivante Corp.  All rights reserved.
 *
 *    The material in this file is confidential and contains trade secrets
 *    of Vivante Corporation. This is proprietary information owned by
@@ -11,13 +11,16 @@
 *****************************************************************************/
 
 
+/*
+ * Include file for the kernel HAL layer.
+ */
+
 #ifndef __gc_hal_vg_h_
 #define __gc_hal_vg_h_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 #include "gc_hal_types.h"
 #include "gc_hal_enum.h"

@@ -2,7 +2,7 @@
 *
 *    The MIT License (MIT)
 *
-*    Copyright (c) 2014 - 2021 Vivante Corporation
+*    Copyright (c) 2014 - 2022 Vivante Corporation
 *
 *    Permission is hereby granted, free of charge, to any person obtaining a
 *    copy of this software and associated documentation files (the "Software"),
@@ -26,7 +26,7 @@
 *
 *    The GPL License (GPL)
 *
-*    Copyright (C) 2014 - 2021 Vivante Corporation
+*    Copyright (C) 2014 - 2022 Vivante Corporation
 *
 *    This program is free software; you can redistribute it and/or
 *    modify it under the terms of the GNU General Public License
@@ -62,17 +62,17 @@
 extern "C" {
 #endif
 
-#define GLVERTEX_OBJECT 10
-#define GLVERTEX_OBJECT_BYTES 11
+#define GLVERTEX_OBJECT         10
+#define GLVERTEX_OBJECT_BYTES   11
 
-#define GLINDEX_OBJECT 20
-#define GLINDEX_OBJECT_BYTES 21
+#define GLINDEX_OBJECT          20
+#define GLINDEX_OBJECT_BYTES    21
 
-#define GLTEXTURE_OBJECT 30
-#define GLTEXTURE_OBJECT_BYTES 31
+#define GLTEXTURE_OBJECT        30
+#define GLTEXTURE_OBJECT_BYTES  31
 
-#define GLBUFOBJ_OBJECT 40
-#define GLBUFOBJ_OBJECT_BYTES 41
+#define GLBUFOBJ_OBJECT         40
+#define GLBUFOBJ_OBJECT_BYTES   41
 
 #define    ES11_CALLS              151
 #define    ES11_DRAWCALLS          (ES11_CALLS             + 1)
@@ -109,11 +109,11 @@ extern "C" {
 #define HAL_TEXBUFNEWOBJALLOC      (HAL_TEXBUFTOTALBYTEALLOC    + 1)
 #define HAL_TEXBUFTOTALOBJALLOC    (HAL_TEXBUFNEWOBJALLOC       + 1)
 
-#define GPU_CYCLES           1
-#define GPU_READ64BYTE       (GPU_CYCLES         + 1)
-#define GPU_WRITE64BYTE      (GPU_READ64BYTE     + 1)
-#define GPU_TOTALCYCLES      (GPU_WRITE64BYTE    + 1)
-#define GPU_IDLECYCLES       (GPU_TOTALCYCLES    + 1)
+#define GPU_CYCLES            1
+#define GPU_READ64BYTE        (GPU_CYCLES            + 1)
+#define GPU_WRITE64BYTE       (GPU_READ64BYTE        + 1)
+#define GPU_TOTALCYCLES       (GPU_WRITE64BYTE       + 1)
+#define GPU_IDLECYCLES        (GPU_TOTALCYCLES       + 1)
 
 #define VS_INSTCOUNT          1
 #define VS_BRANCHINSTCOUNT    (VS_INSTCOUNT          + 1)
@@ -158,75 +158,74 @@ extern "C" {
 #define SE_NONIDLESTARVECOUNT   (SE_SENDLINESCOUNT       + 1)
 #define SE_PROCESSCOUNT         (SE_NONIDLESTARVECOUNT   + 1)
 
-#define RA_VALIDPIXCOUNT      1
-#define RA_TOTALQUADCOUNT     (RA_VALIDPIXCOUNT      + 1)
-#define RA_VALIDQUADCOUNTEZ   (RA_TOTALQUADCOUNT     + 1)
-#define RA_TOTALPRIMCOUNT     (RA_VALIDQUADCOUNTEZ   + 1)
-#define RA_PIPECACHEMISSCOUNT (RA_TOTALPRIMCOUNT     + 1)
-#define RA_PREFCACHEMISSCOUNT (RA_PIPECACHEMISSCOUNT + 1)
-#define RA_EEZCULLCOUNT       (RA_PREFCACHEMISSCOUNT + 1)
-#define RA_NONIDLESTARVECOUNT (RA_EEZCULLCOUNT       + 1)
-#define RA_STARVELCOUNT       (RA_NONIDLESTARVECOUNT + 1)
-#define RA_STALLCOUNT         (RA_STARVELCOUNT       + 1)
-#define RA_PROCESSCOUNT       (RA_STALLCOUNT         + 1)
+#define RA_VALIDPIXCOUNT       1
+#define RA_TOTALQUADCOUNT      (RA_VALIDPIXCOUNT      + 1)
+#define RA_VALIDQUADCOUNTEZ    (RA_TOTALQUADCOUNT     + 1)
+#define RA_TOTALPRIMCOUNT      (RA_VALIDQUADCOUNTEZ   + 1)
+#define RA_PIPECACHEMISSCOUNT  (RA_TOTALPRIMCOUNT     + 1)
+#define RA_PREFCACHEMISSCOUNT  (RA_PIPECACHEMISSCOUNT + 1)
+#define RA_EEZCULLCOUNT        (RA_PREFCACHEMISSCOUNT + 1)
+#define RA_NONIDLESTARVECOUNT  (RA_EEZCULLCOUNT       + 1)
+#define RA_STARVELCOUNT        (RA_NONIDLESTARVECOUNT + 1)
+#define RA_STALLCOUNT          (RA_STARVELCOUNT       + 1)
+#define RA_PROCESSCOUNT        (RA_STALLCOUNT         + 1)
 
-#define TX_TOTBILINEARREQ     1
-#define TX_TOTTRILINEARREQ    (TX_TOTBILINEARREQ      + 1)
-#define TX_TOTDISCARDTEXREQ   (TX_TOTTRILINEARREQ     + 1)
-#define TX_TOTTEXREQ          (TX_TOTDISCARDTEXREQ    + 1)
-#define TX_MEMREADCOUNT       (TX_TOTTEXREQ           + 1)
-#define TX_MEMREADIN8BCOUNT   (TX_MEMREADCOUNT        + 1)
-#define TX_CACHEMISSCOUNT     (TX_MEMREADIN8BCOUNT    + 1)
-#define TX_CACHEHITTEXELCOUNT (TX_CACHEMISSCOUNT      + 1)
-#define TX_CACHEMISSTEXELCOUNT (TX_CACHEHITTEXELCOUNT + 1)
-#define TX_NONIDLESTARVECOUNT  (TX_CACHEMISSTEXELCOUNT+ 1)
-#define TX_STARVELCOUNT        (TX_NONIDLESTARVECOUNT + 1)
-#define TX_STALLCOUNT          (TX_STARVELCOUNT       + 1)
-#define TX_PROCESSCOUNT        (TX_STALLCOUNT         + 1)
+#define TX_TOTBILINEARREQ      1
+#define TX_TOTTRILINEARREQ     (TX_TOTBILINEARREQ      + 1)
+#define TX_TOTDISCARDTEXREQ    (TX_TOTTRILINEARREQ     + 1)
+#define TX_TOTTEXREQ           (TX_TOTDISCARDTEXREQ    + 1)
+#define TX_MEMREADCOUNT        (TX_TOTTEXREQ           + 1)
+#define TX_MEMREADIN8BCOUNT    (TX_MEMREADCOUNT        + 1)
+#define TX_CACHEMISSCOUNT      (TX_MEMREADIN8BCOUNT    + 1)
+#define TX_CACHEHITTEXELCOUNT  (TX_CACHEMISSCOUNT      + 1)
+#define TX_CACHEMISSTEXELCOUNT (TX_CACHEHITTEXELCOUNT  + 1)
+#define TX_NONIDLESTARVECOUNT  (TX_CACHEMISSTEXELCOUNT + 1)
+#define TX_STARVELCOUNT        (TX_NONIDLESTARVECOUNT  + 1)
+#define TX_STALLCOUNT          (TX_STARVELCOUNT        + 1)
+#define TX_PROCESSCOUNT        (TX_STALLCOUNT          + 1)
 
 #define PE_KILLEDBYCOLOR      1
-#define PE_KILLEDBYDEPTH      (PE_KILLEDBYCOLOR    + 1)
-#define PE_DRAWNBYCOLOR       (PE_KILLEDBYDEPTH    + 1)
-#define PE_DRAWNBYDEPTH       (PE_DRAWNBYCOLOR     + 1)
+#define PE_KILLEDBYDEPTH      (PE_KILLEDBYCOLOR     + 1)
+#define PE_DRAWNBYCOLOR       (PE_KILLEDBYDEPTH     + 1)
+#define PE_DRAWNBYDEPTH       (PE_DRAWNBYCOLOR      + 1)
 
 #define MC_READREQ8BPIPE      1
-#define MC_READREQ8BIP        (MC_READREQ8BPIPE    + 1)
-#define MC_WRITEREQ8BPIPE     (MC_READREQ8BIP      + 1)
-#define MC_AXIMINLATENCY      (MC_WRITEREQ8BPIPE   + 1)
-#define MC_AXIMAXLATENCY      (MC_AXIMINLATENCY    + 1)
-#define MC_AXITOTALLATENCY    (MC_AXIMAXLATENCY    + 1)
-#define MC_AXISAMPLECOUNT     (MC_AXITOTALLATENCY  + 1)
+#define MC_READREQ8BIP        (MC_READREQ8BPIPE     + 1)
+#define MC_WRITEREQ8BPIPE     (MC_READREQ8BIP       + 1)
+#define MC_AXIMINLATENCY      (MC_WRITEREQ8BPIPE    + 1)
+#define MC_AXIMAXLATENCY      (MC_AXIMINLATENCY     + 1)
+#define MC_AXITOTALLATENCY    (MC_AXIMAXLATENCY     + 1)
+#define MC_AXISAMPLECOUNT     (MC_AXITOTALLATENCY   + 1)
 
 #define AXI_READREQSTALLED    1
-#define AXI_WRITEREQSTALLED   (AXI_READREQSTALLED  + 1)
-#define AXI_WRITEDATASTALLED  (AXI_WRITEREQSTALLED + 1)
+#define AXI_WRITEREQSTALLED   (AXI_READREQSTALLED   + 1)
+#define AXI_WRITEDATASTALLED  (AXI_WRITEREQSTALLED  + 1)
 
-#define FE_DRAWCOUNT    1
-#define FE_OUTVERTEXCOUNT     (FE_DRAWCOUNT  + 1)
-#define FE_STALLCOUNT         (FE_OUTVERTEXCOUNT + 1)
-#define FE_STARVECOUNT        (FE_STALLCOUNT + 1)
+#define FE_DRAWCOUNT          1
+#define FE_OUTVERTEXCOUNT     (FE_DRAWCOUNT         + 1)
+#define FE_STALLCOUNT         (FE_OUTVERTEXCOUNT    + 1)
+#define FE_STARVECOUNT        (FE_STALLCOUNT        + 1)
 
 #define PVS_INSTRCOUNT        1
-#define PVS_ALUINSTRCOUNT     (PVS_INSTRCOUNT      + 1)
-#define PVS_TEXINSTRCOUNT     (PVS_ALUINSTRCOUNT   + 1)
-#define PVS_ATTRIBCOUNT       (PVS_TEXINSTRCOUNT   + 1)
-#define PVS_UNIFORMCOUNT      (PVS_ATTRIBCOUNT     + 1)
-#define PVS_FUNCTIONCOUNT     (PVS_UNIFORMCOUNT    + 1)
-#define PVS_SOURCE            (PVS_FUNCTIONCOUNT   + 1)
+#define PVS_ALUINSTRCOUNT     (PVS_INSTRCOUNT       + 1)
+#define PVS_TEXINSTRCOUNT     (PVS_ALUINSTRCOUNT    + 1)
+#define PVS_ATTRIBCOUNT       (PVS_TEXINSTRCOUNT    + 1)
+#define PVS_UNIFORMCOUNT      (PVS_ATTRIBCOUNT      + 1)
+#define PVS_FUNCTIONCOUNT     (PVS_UNIFORMCOUNT     + 1)
+#define PVS_SOURCE            (PVS_FUNCTIONCOUNT    + 1)
 
-#define PPS_INSTRCOUNT       1
-#define PPS_ALUINSTRCOUNT    (PPS_INSTRCOUNT       + 1)
-#define PPS_TEXINSTRCOUNT    (PPS_ALUINSTRCOUNT    + 1)
-#define PPS_ATTRIBCOUNT      (PPS_TEXINSTRCOUNT    + 1)
-#define PPS_UNIFORMCOUNT     (PPS_ATTRIBCOUNT      + 1)
-#define PPS_FUNCTIONCOUNT    (PPS_UNIFORMCOUNT     + 1)
-#define PPS_SOURCE           (PPS_FUNCTIONCOUNT    + 1)
+#define PPS_INSTRCOUNT        1
+#define PPS_ALUINSTRCOUNT     (PPS_INSTRCOUNT       + 1)
+#define PPS_TEXINSTRCOUNT     (PPS_ALUINSTRCOUNT    + 1)
+#define PPS_ATTRIBCOUNT       (PPS_TEXINSTRCOUNT    + 1)
+#define PPS_UNIFORMCOUNT      (PPS_ATTRIBCOUNT      + 1)
+#define PPS_FUNCTIONCOUNT     (PPS_UNIFORMCOUNT     + 1)
+#define PPS_SOURCE            (PPS_FUNCTIONCOUNT    + 1)
 /* End of MISC Counter IDs. */
 
 #define VPG(x) (gcoPROFILER_getVPGConst(x))
 
-enum gceVPG
-{
+enum gceVPG {
     VPHEADER,
     INFO,
     FRAME,
@@ -448,7 +447,7 @@ enum gceVPG
 #define VPNC_VSSTALLCOUNT                (VPNG_VS + 7)
 #define VPNC_VSPROCESSCOUNT              (VPNG_VS + 8)
 #define VPNC_VSSHADERCYCLECOUNT          (VPNG_VS + 9)
-#define VPNC_VS_COUNT                    VPNC_VSSHADERCYCLECOUNT - VPNG_VS
+#define VPNC_VS_COUNT                    (VPNC_VSSHADERCYCLECOUNT - VPNG_VS)
 
 /* HW: PS Count. */
 #define VPNC_PSINSTCOUNT                 (VPNG_PS + 1)
@@ -460,7 +459,7 @@ enum gceVPG
 #define VPNC_PSSTALLCOUNT                (VPNG_PS + 7)
 #define VPNC_PSPROCESSCOUNT              (VPNG_PS + 8)
 #define VPNC_PSSHADERCYCLECOUNT          (VPNG_PS + 9)
-#define VPNC_PS_COUNT                    VPNC_PSSHADERCYCLECOUNT - VPNG_PS
+#define VPNC_PS_COUNT                    (VPNC_PSSHADERCYCLECOUNT - VPNG_PS)
 
 /* HW: PA Counters. */
 #define VPNC_PAINVERTCOUNT               (VPNG_PA + 1)
@@ -476,7 +475,7 @@ enum gceVPG
 #define VPNC_PASTARVELCOUNT              (VPNG_PA + 11)
 #define VPNC_PASTALLCOUNT                (VPNG_PA + 12)
 #define VPNC_PAPROCESSCOUNT              (VPNG_PA + 13)
-#define VPNC_PA_COUNT                    VPNC_PAPROCESSCOUNT - VPNG_PA
+#define VPNC_PA_COUNT                    (VPNC_PAPROCESSCOUNT - VPNG_PA)
 
 /* HW: Setup Counters. */
 #define VPNC_SECULLTRIANGLECOUNT         (VPNG_SETUP + 1)
@@ -492,7 +491,7 @@ enum gceVPG
 #define VPNC_SENONIDLESTARVECOUNT        (VPNG_SETUP + 11)
 #define VPNC_SETRIVIALREJLINECOUNT       (VPNG_SETUP + 12)
 #define VPNC_SEPROCESSCOUNT              (VPNG_SETUP + 13)
-#define VPNC_SE_COUNT                    VPNC_SEPROCESSCOUNT - VPNG_SETUP
+#define VPNC_SE_COUNT                    (VPNC_SEPROCESSCOUNT - VPNG_SETUP)
 
 /* HW: RA Counters. */
 #define VPNC_RAVALIDPIXCOUNT             (VPNG_RA + 1)
@@ -510,7 +509,7 @@ enum gceVPG
 #define VPNC_RASTARVELCOUNT              (VPNG_RA + 13)
 #define VPNC_RASTALLCOUNT                (VPNG_RA + 14)
 #define VPNC_RAPROCESSCOUNT              (VPNG_RA + 15)
-#define VPNC_RA_COUNT                    VPNC_RAPROCESSCOUNT - VPNG_RA
+#define VPNC_RA_COUNT                    (VPNC_RAPROCESSCOUNT - VPNG_RA)
 
 /* HW: TEX Counters. */
 #define VPNC_TXTOTBILINEARREQ            (VPNG_TX + 1)
@@ -521,7 +520,7 @@ enum gceVPG
 #define VPNC_TXMC0REQCOUNT               (VPNG_TX + 6)
 #define VPNC_TXMC1MISSCOUNT              (VPNG_TX + 7)
 #define VPNC_TXMC1REQCOUNT               (VPNG_TX + 8)
-#define VPNC_TX_COUNT                    VPNC_TXMC1REQCOUNT - VPNG_TX
+#define VPNC_TX_COUNT                    (VPNC_TXMC1REQCOUNT - VPNG_TX)
 
 /* HW: PE Counters. */
 #define VPNC_PE0KILLEDBYCOLOR             (VPNG_PE + 1)
@@ -532,7 +531,7 @@ enum gceVPG
 #define VPNC_PE1KILLEDBYDEPTH             (VPNG_PE + 6)
 #define VPNC_PE1DRAWNBYCOLOR              (VPNG_PE + 7)
 #define VPNC_PE1DRAWNBYDEPTH              (VPNG_PE + 8)
-#define VPNC_PE_COUNT                     VPNC_PE1DRAWNBYDEPTH - VPNG_PE
+#define VPNC_PE_COUNT                     (VPNC_PE1DRAWNBYDEPTH - VPNG_PE)
 
 /* HW: MCC Counters. */
 #define VPNC_MCCREADREQ8BCOLORPIPE        (VPNG_MCC + 1)
@@ -562,7 +561,7 @@ enum gceVPG
 #define VPNC_MCCBLTWRITEBANDWIDTH         (VPNG_MCC + 25)
 #define VPNC_MCCSH0WRITEBANDWIDTH         (VPNG_MCC + 26)
 #define VPNC_MCCSH1WRITEBANDWIDTH         (VPNG_MCC + 27)
-#define VPNC_MCC_COUNT                    VPNC_MCCSH1WRITEBANDWIDTH - VPNG_MCC
+#define VPNC_MCC_COUNT                    (VPNC_MCCSH1WRITEBANDWIDTH - VPNG_MCC)
 
 /* HW: MCZ Counters. */
 #define VPNC_MCZREADREQ8BCOLORPIPE        (VPNG_MCZ + 1)
@@ -583,7 +582,7 @@ enum gceVPG
 #define VPNC_MCZAXIMAXLATENCY             (VPNG_MCZ + 16)
 #define VPNC_MCZAXITOTALLATENCY           (VPNG_MCZ + 17)
 #define VPNC_MCZAXISAMPLECOUNT            (VPNG_MCZ + 18)
-#define VPNC_MCZ_COUNT                    VPNC_MCZAXISAMPLECOUNT - VPNG_MCZ
+#define VPNC_MCZ_COUNT                    (VPNC_MCZAXISAMPLECOUNT - VPNG_MCZ)
 
 /* HW: HI Counters. */
 #define VPNC_HI0READ8BYTE                (VPNG_HI + 1)
@@ -606,7 +605,7 @@ enum gceVPG
 #define VPNC_HIWRITE8BYTE                (VPNG_HI + 18)
 #define VPNC_HIOCBREAD16BYTE             (VPNG_HI + 19)
 #define VPNC_HIOCBWRITE16BYTE            (VPNG_HI + 20)
-#define VPNC_HI_COUNT                    VPNC_HIOCBWRITE16BYTE - VPNG_HI
+#define VPNC_HI_COUNT                    (VPNC_HIOCBWRITE16BYTE - VPNG_HI)
 
 /* HW: L2 Counters. */
 #define VPNC_L2AXI0READREQCOUNT          (VPNG_L2 + 1)
@@ -625,7 +624,7 @@ enum gceVPG
 #define VPNC_L2AXI1MAXLATENCY            (VPNG_L2 + 14)
 #define VPNC_L2AXI1TOTLATENCY            (VPNG_L2 + 15)
 #define VPNC_L2AXI1TOTREQCOUNT           (VPNG_L2 + 16)
-#define VPNC_L2_COUNT                    VPNC_L2AXI1TOTREQCOUNT - VPNG_L2
+#define VPNC_L2_COUNT                    (VPNC_L2AXI1TOTREQCOUNT - VPNG_L2)
 
 /* HW: FE Counters. */
 #define VPNC_FEDRAWCOUNT                 (VPNG_FE + 1)
@@ -635,11 +634,12 @@ enum gceVPG
 #define VPNC_FESTALLCOUNT                (VPNG_FE + 5)
 #define VPNC_FESTARVECOUNT               (VPNG_FE + 6)
 #define VPNC_FEPROCESSCOUNT              (VPNG_FE + 7)
-#define VPNC_FE_COUNT                    VPNC_FEPROCESSCOUNT - VPNG_FE
+#define VPNC_FE_COUNT                    (VPNC_FEPROCESSCOUNT - VPNG_FE)
 
-#define TOTAL_COUNTER_NUMBER             (VPNC_FE_COUNT + VPNC_VS_COUNT + VPNC_PA_COUNT + VPNC_SE_COUNT + VPNC_RA_COUNT \
-                                          + VPNC_PS_COUNT + VPNC_TX_COUNT + VPNC_PE_COUNT + VPNC_MCC_COUNT + VPNC_MCZ_COUNT \
-                                          + VPNC_HI_COUNT + VPNC_L2_COUNT)
+#define TOTAL_COUNTER_NUMBER   \
+    (VPNC_FE_COUNT + VPNC_VS_COUNT + VPNC_PA_COUNT + VPNC_SE_COUNT  + VPNC_RA_COUNT  + \
+     VPNC_PS_COUNT + VPNC_TX_COUNT + VPNC_PE_COUNT + VPNC_MCC_COUNT + VPNC_MCZ_COUNT + \
+     VPNC_HI_COUNT + VPNC_L2_COUNT)
 
 #define TOTAL_MODULE_NUMBER              12
 
@@ -666,7 +666,6 @@ enum gceVPG
 #define VPC_ES11_DRAW_NO            (VPG_ES11_DRAW + 1)
 #define VPC_ES30_GPU_NO             (VPG(MULTI_GPU) + 1)
 
-
 #define   MODULE_FRONT_END_COUNTER_NUM                    0x5
 #define   MODULE_VERTEX_SHADER_COUNTER_NUM                0x9
 #define   MODULE_PRIMITIVE_ASSEMBLY_COUNTER_NUM           0xC
@@ -680,13 +679,25 @@ enum gceVPG
 #define   MODULE_HOST_INTERFACE0_COUNTER_NUM              0x9
 #define   MODULE_HOST_INTERFACE1_COUNTER_NUM              0x7
 #define   MODULE_GPUL2_CACHE_COUNTER_NUM                  0xE
-#define   TOTAL_PROBE_NUMBER (MODULE_FRONT_END_COUNTER_NUM + MODULE_VERTEX_SHADER_COUNTER_NUM + MODULE_PRIMITIVE_ASSEMBLY_COUNTER_NUM \
-                              + MODULE_SETUP_COUNTER_NUM + MODULE_RASTERIZER_COUNTER_NUM + MODULE_PIXEL_SHADER_COUNTER_NUM \
-                              + MODULE_TEXTURE_COUNTER_NUM + MODULE_PIXEL_ENGINE_COUNTER_NUM + MODULE_MEMORY_CONTROLLER_COLOR_COUNTER_NUM \
-                              + MODULE_MEMORY_CONTROLLER_DEPTH_COUNTER_NUM + MODULE_HOST_INTERFACE0_COUNTER_NUM + MODULE_HOST_INTERFACE1_COUNTER_NUM \
-                              + MODULE_GPUL2_CACHE_COUNTER_NUM)
+#define   TOTAL_PROBE_NUMBER                                                    \
+    (MODULE_FRONT_END_COUNTER_NUM + MODULE_VERTEX_SHADER_COUNTER_NUM +          \
+     MODULE_PRIMITIVE_ASSEMBLY_COUNTER_NUM + MODULE_SETUP_COUNTER_NUM +         \
+     MODULE_RASTERIZER_COUNTER_NUM + MODULE_PIXEL_SHADER_COUNTER_NUM +          \
+     MODULE_TEXTURE_COUNTER_NUM + MODULE_PIXEL_ENGINE_COUNTER_NUM +             \
+     MODULE_MEMORY_CONTROLLER_COLOR_COUNTER_NUM +                               \
+     MODULE_MEMORY_CONTROLLER_DEPTH_COUNTER_NUM +                               \
+     MODULE_HOST_INTERFACE0_COUNTER_NUM + MODULE_HOST_INTERFACE1_COUNTER_NUM +  \
+     MODULE_GPUL2_CACHE_COUNTER_NUM)
 
-#define   TOTAL_CL_COUNTER_NUMBER               ((VPNC_FEPROCESSCOUNT - VPNC_FECACHELKCOUNT + 1) + VPNC_TX_COUNT + (VPNC_PS_COUNT - 1) + (VPNC_MCCSH1WRITEBANDWIDTH - VPNC_MCCWRITEREQDEPTHPIPE - (VPNC_MCCSH1WRITEBANDWIDTH - VPNC_MCCFEREADBANDWIDTH + 1)) + (VPNC_HI_COUNT - (VPNC_HIOCBWRITE16BYTE - VPNC_HIOCBREAD16BYTE + 1)) + VPNC_L2_COUNT)
+#define   TOTAL_CL_COUNTER_NUMBER                                               \
+    (\
+        (VPNC_FEPROCESSCOUNT - VPNC_FECACHELKCOUNT + 1) +                       \
+        VPNC_TX_COUNT + (VPNC_PS_COUNT - 1) +                                   \
+        (VPNC_MCCSH1WRITEBANDWIDTH - VPNC_MCCWRITEREQDEPTHPIPE -                \
+            (VPNC_MCCSH1WRITEBANDWIDTH - VPNC_MCCFEREADBANDWIDTH + 1)) +        \
+        (VPNC_HI_COUNT - (VPNC_HIOCBWRITE16BYTE - VPNC_HIOCBREAD16BYTE + 1)) +  \
+        VPNC_L2_COUNT                                                           \
+    )
 #define   TOTAL_CL_MODULE_NUMBER                (6)
 
 #define VPNC_NN_LAYER_ID                        (VPNG_NN + 1)
@@ -808,228 +819,242 @@ enum gceVPG
 #define VPNC_TP_TOTAL_IDLE_CYCLE_CORE15_OVFL  (VPNG_TP + 56)
 #define VPNC_TP_COUNT                         (VPNC_TP_TOTAL_IDLE_CYCLE_CORE15_OVFL - VPNG_TP)
 
-#define   MODULE_NN_BASE_COUNTER_NUM               0x6
+#define   MODULE_NN_BASE_COUNTER_NUM          0x6
 /*#define   MODULE_NN_RESERVED_COUNTER_NUM           0x9*/
-#define   MODULE_NN_IDLE_COUNTER_NUM               0x9
-#define   MODULE_NN_COUNTER_NUM            (MODULE_NN_BASE_COUNTER_NUM + MODULE_NN_RESERVED_COUNTER_NUM + MODULE_NN_IDLE_COUNTER_NUM)
+#define   MODULE_NN_IDLE_COUNTER_NUM          0x9
+#define   MODULE_NN_COUNTER_NUM               (MODULE_NN_BASE_COUNTER_NUM + MODULE_NN_RESERVED_COUNTER_NUM + MODULE_NN_IDLE_COUNTER_NUM)
 
-#define  TOTAL_VIP_COUNTER_NUMBER  (VPNC_TP_COUNT + VPNC_NN_COUNT)
-#define   TOTAL_VIP_MODULE_NUMBER  2
-#define   MODULE_TP_COUNTER_NUM      0xE
-#define   TOTAL_VIP_PROBE_NUMBER (MODULE_NN_COUNTER_NUM + MODULE_TP_COUNTER_NUM)
+#define  TOTAL_VIP_COUNTER_NUMBER       (VPNC_TP_COUNT + VPNC_NN_COUNT)
+#define   TOTAL_VIP_MODULE_NUMBER       2
+#define   MODULE_TP_COUNTER_NUM         0xE
+#define   TOTAL_VIP_PROBE_NUMBER        (MODULE_NN_COUNTER_NUM + MODULE_TP_COUNTER_NUM)
 
 #ifdef ANDROID
-#define DEFAULT_PROFILE_FILE_NAME   "/sdcard/vprofiler.vpd"
+#    define DEFAULT_PROFILE_FILE_NAME   "/sdcard/vprofiler.vpd"
 #else
-#define DEFAULT_PROFILE_FILE_NAME   "vprofiler.vpd"
+#    define DEFAULT_PROFILE_FILE_NAME   "vprofiler.vpd"
 #endif
 
-#define VPHEADER_VERSION "VP20"
+#define VPHEADER_VERSION                "VP20"
 
-#define VPFILETYPE_GL "10"
+#define VPFILETYPE_GL                   "10"
 
-#define VPFILETYPE_CL "00"
+#define VPFILETYPE_CL                   "00"
 
 #if gcdENDIAN_BIG
-#define BIG_ENDIAN_TRANS_INT(x) ((gctUINT32)(\
-        (((gctUINT32)(x) & (gctUINT32)0x000000FFUL) << 24) | \
-        (((gctUINT32)(x) & (gctUINT32)0x0000FF00UL) << 8)  | \
-        (((gctUINT32)(x) & (gctUINT32)0x00FF0000UL) >> 8)  | \
-        (((gctUINT32)(x) & (gctUINT32)0xFF000000UL) >> 24)))
+#    define BIG_ENDIAN_TRANS_INT(x)                                           \
+        ((gctUINT32)((((gctUINT32)(x) & (gctUINT32)0x000000FFUL) << 24) |     \
+                     (((gctUINT32)(x) & (gctUINT32)0x0000FF00UL) << 8)  |     \
+                     (((gctUINT32)(x) & (gctUINT32)0x00FF0000UL) >> 8)  |     \
+                     (((gctUINT32)(x) & (gctUINT32)0xFF000000UL) >> 24)))
 #else
-#define BIG_ENDIAN_TRANS_INT(x) x
+#    define BIG_ENDIAN_TRANS_INT(x) x
 #endif
 
 /* Write a data value. */
-#define gcmWRITE_VALUE(IntData) \
-    do \
-    { \
-        gceSTATUS status; \
-        gctINT32 value = IntData; \
-        value = BIG_ENDIAN_TRANS_INT(value); \
-        gcmERR_BREAK(gcoPROFILER_Write(Profiler, gcmSIZEOF(value), &value)); \
-    } \
-    while (gcvFALSE)
+#define gcmWRITE_VALUE(IntData)                                               \
+    do {                                                                      \
+        gceSTATUS status;                                                     \
+        gctINT32  value = IntData;                                            \
+        value           = BIG_ENDIAN_TRANS_INT(value);                        \
+        gcmERR_BREAK(gcoPROFILER_Write(Profiler, gcmSIZEOF(value), &value));  \
+    } while (gcvFALSE)
 
-#define gcmWRITE_CONST(Const) \
-    do \
-    { \
-        gceSTATUS status; \
-        gctINT32 data = Const; \
-        data = BIG_ENDIAN_TRANS_INT(data); \
-        gcmERR_BREAK(gcoPROFILER_Write(Profiler, gcmSIZEOF(data), &data)); \
-    } \
-    while (gcvFALSE)
+#define gcmWRITE_CONST(Const)                                                 \
+    do {                                                                      \
+        gceSTATUS status;                                                     \
+        gctINT32  data = Const;                                               \
+        data           = BIG_ENDIAN_TRANS_INT(data);                          \
+        gcmERR_BREAK(gcoPROFILER_Write(Profiler, gcmSIZEOF(data), &data));    \
+    } while (gcvFALSE)
 
-#define gcmWRITE_COUNTER(Counter, Value) \
-    gcmWRITE_CONST(Counter); \
-    gcmWRITE_VALUE(Value)
+#define gcmWRITE_COUNTER(Counter, Value)                                      \
+    do {                                                                      \
+        gcmWRITE_CONST(Counter);                                              \
+        gcmWRITE_VALUE(Value);                                                \
+    } while (gcvFALSE)
 
 /* Write a data value. */
-#define gcmRECORD_VALUE(IntData) \
-    do \
-    { \
-        gctINT32 value = IntData; \
-        value = BIG_ENDIAN_TRANS_INT(value); \
-        counterData[counterIndex++] = value; \
-    } \
-    while (gcvFALSE)
+#define gcmRECORD_VALUE(IntData)                                              \
+    do {                                                                      \
+        gctINT32 value              = IntData;                                \
+        value                       = BIG_ENDIAN_TRANS_INT(value);            \
+        counterData[counterIndex++] = value;                                  \
+    } while (gcvFALSE)
 
-#define gcmRECORD_CONST(Const) \
-    do \
-    { \
-        gctINT32 data = Const; \
-        data = BIG_ENDIAN_TRANS_INT(data); \
-        counterData[counterIndex++] = data; \
-    } \
-    while (gcvFALSE)
+#define gcmRECORD_CONST(Const)                                                \
+    do {                                                                      \
+        gctINT32 data               = Const;                                  \
+        data                        = BIG_ENDIAN_TRANS_INT(data);             \
+        counterData[counterIndex++] = data;                                   \
+    } while (gcvFALSE)
 
-#define gcmRECORD_COUNTER(Counter, Value) \
-    gcmRECORD_CONST(Counter); \
-    gcmRECORD_VALUE(Value)
+#define gcmRECORD_COUNTER(Counter, Value)                                     \
+    do {                                                                      \
+        gcmRECORD_CONST(Counter);                                             \
+        gcmRECORD_VALUE(Value);                                               \
+    } while (gcvFALSE)
 
 /* Write a string value (char*). */
-#define gcmWRITE_STRING(String) \
-    do \
-    { \
-        gceSTATUS status; \
-        gctINT32 length; \
-        length = (gctINT32) gcoOS_StrLen((gctSTRING)String, gcvNULL); \
-        length = BIG_ENDIAN_TRANS_INT(length); \
-        gcmERR_BREAK(gcoPROFILER_Write(Profiler, gcmSIZEOF(length), &length)); \
-        gcmERR_BREAK(gcoPROFILER_Write(Profiler, length, String)); \
-    } \
-    while (gcvFALSE)
+#define gcmWRITE_STRING(String)                                                          \
+    do {                                                                                 \
+        gceSTATUS status;                                                                \
+        gctINT32  length;                                                                \
+        length = (gctINT32)gcoOS_StrLen((gctSTRING)String, gcvNULL);                     \
+        length = BIG_ENDIAN_TRANS_INT(length);                                           \
+        gcmERR_BREAK(gcoPROFILER_Write(Profiler, gcmSIZEOF(length), &length));           \
+        gcmERR_BREAK(gcoPROFILER_Write(Profiler, length, String));                       \
+    } while (gcvFALSE)
 
-#define gcmWRITE_BUFFER(Size, Buffer) \
-    do \
-    { \
-        gceSTATUS status; \
-        gcmERR_BREAK(gcoPROFILER_Write(Profiler, Size, Buffer)); \
-    } \
-    while (gcvFALSE)
+#define gcmWRITE_BUFFER(Size, Buffer)                                                    \
+    do {                                                                                 \
+        gceSTATUS status;                                                                \
+        gcmERR_BREAK(gcoPROFILER_Write(Profiler, Size, Buffer));                         \
+    } while (gcvFALSE)
 
-
-#define gcmGET_COUNTER(counter, counterId) \
-    do \
-    { \
-        if (*(memory + (counterId + offset) * (1 << clusterIDWidth)) == 0xdeaddead) \
-        { \
-            counter = 0xdeaddead; \
-        } \
-        else \
-        { \
-            gctUINT32 i; \
-            gctUINT32_PTR Memory = memory; \
-            gctUINT32 total_probe_number = 0; \
-            counter = 0; \
-            gcmONERROR(gcoPROFILER_GetProbeNumber(Hardware, &total_probe_number)); \
-            Memory = memory + total_probe_number * CoreId * (1 << clusterIDWidth); \
-            for (i = 0; i < (gctUINT32)(1 << clusterIDWidth); i++) \
-            { \
+#define gcmGET_COUNTER(counter, counterId)                                               \
+    do {                                                                                 \
+        if (*(memory + (counterId + offset) * (1 << clusterIDWidth)) == 0xdeaddead) {    \
+            counter = 0xdeaddead;                                                        \
+        } else {                                                                         \
+            gctUINT32     i;                                                             \
+            gctUINT32_PTR Memory             = memory;                                   \
+            gctUINT32     total_probe_number = 0;                                        \
+            counter                          = 0;                                        \
+            gcmONERROR(gcoPROFILER_GetProbeNumber(Hardware, &total_probe_number));       \
+            Memory = memory + total_probe_number * CoreId * (1 << clusterIDWidth);       \
+            for (i = 0; i < (gctUINT32)(1 << clusterIDWidth); i++) {                     \
                 counter += *(Memory + (counterId + offset) * (1 << clusterIDWidth) + i); \
-            } \
-        } \
-    } \
-    while (gcvFALSE)
+            }                                                                            \
+        }                                                                                \
+    } while (gcvFALSE)
 
-#define gcmGET_VIPCOUNTER(counter, counterId) \
-    do \
-    { \
-        if (*(memory + (counterId + offset) * (1 << clusterIDWidth)) == 0xdeaddead) \
-        { \
-            counter = 0xdeaddead; \
-        } \
-        else \
-        { \
-            gctUINT32 i; \
-            gctUINT32_PTR Memory = memory; \
-            counter = 0; \
-            Memory = memory + TOTAL_VIP_PROBE_NUMBER * CoreId * (1 << clusterIDWidth); \
-            for (i = 0; i < (gctUINT32)(1 << clusterIDWidth); i++) \
-            { \
+#define gcmGET_MAXCOUNTER(counter, counterId)                                                   \
+    do {                                                                                        \
+        if (*(memory + (counterId + offset) * (1 << clusterIDWidth)) == 0xdeaddead) {           \
+            counter = 0xdeaddead;                                                               \
+        } else {                                                                                \
+            gctUINT32 i;                                                                        \
+            gctUINT32_PTR Memory = memory;                                                      \
+            gctUINT32 total_probe_number = 0;                                                   \
+            gctUINT32 max_counter = 0;                                                          \
+                                                                                                \
+            counter = 0;                                                                        \
+            gcmONERROR(gcoPROFILER_GetProbeNumber(Hardware, &total_probe_number));              \
+            Memory = memory + total_probe_number * CoreId * (1 << clusterIDWidth);              \
+            for (i = 0; i < (gctUINT32)(1 << clusterIDWidth); i++) {                            \
+                if (max_counter < *(Memory + (counterId + offset) * (1 << clusterIDWidth) + i)) \
+                    max_counter = *(Memory + (counterId + offset) * (1 << clusterIDWidth) + i); \
+            }                                                                                   \
+            counter = max_counter;                                                              \
+        }                                                                                       \
+    } while (gcvFALSE)
+
+#define gcmGET_MINCOUNTER(counter, counterId)                                                   \
+    do {                                                                                        \
+        if (*(memory + (counterId + offset) * (1 << clusterIDWidth)) == 0xdeaddead) {           \
+            counter = 0xdeaddead;                                                               \
+        } else {                                                                                \
+            gctUINT32 i;                                                                        \
+            gctUINT32_PTR Memory = memory;                                                      \
+            gctUINT32 total_probe_number = 0;                                                   \
+            gctUINT32 min_counter = 0;                                                          \
+            counter = 0;                                                                        \
+            gcmONERROR(gcoPROFILER_GetProbeNumber(Hardware, &total_probe_number));              \
+            Memory = memory + total_probe_number * CoreId * (1 << clusterIDWidth);              \
+            min_counter = *(Memory + (counterId + offset) * (1 << clusterIDWidth));             \
+            for (i = 0; i < (gctUINT32)(1 << clusterIDWidth); i++) {                            \
+                if (min_counter > *(Memory + (counterId + offset) * (1 << clusterIDWidth) + i)) \
+                    min_counter = *(Memory + (counterId + offset) * (1 << clusterIDWidth) + i); \
+            }                                                                                   \
+            counter = min_counter;                                                              \
+        }                                                                                       \
+    } while (gcvFALSE)
+
+#define gcmGET_VIPCOUNTER(counter, counterId)                                            \
+    do {                                                                                 \
+        if (*(memory + (counterId + offset) * (1 << clusterIDWidth)) == 0xdeaddead) {    \
+            counter = 0xdeaddead;                                                        \
+        } else {                                                                         \
+            gctUINT32     i;                                                             \
+            gctUINT32_PTR Memory = memory;                                               \
+            counter = 0;                                                                 \
+            Memory  = memory + TOTAL_VIP_PROBE_NUMBER * CoreId * (1 << clusterIDWidth);  \
+            for (i = 0; i < (gctUINT32)(1 << clusterIDWidth); i++) {                     \
                 counter += *(Memory + (counterId + offset) * (1 << clusterIDWidth) + i); \
-            } \
-        } \
-    } \
-    while (gcvFALSE)
+            }                                                                            \
+        }                                                                                \
+    } while (gcvFALSE)
 
-#define gcmGET_LATENCY_COUNTER(minLatency, maxLatency, counterId) \
-    do \
-    { \
-        if (*(memory + (counterId + offset) * (1 << clusterIDWidth)) == 0xdeaddead) \
-        { \
-            minLatency = maxLatency = 0xdeaddead; \
-        } \
-        else \
-        { \
-            gctUINT32 i; \
-            gctUINT32_PTR Memory = memory; \
-            gctUINT32 total_probe_number = 0; \
-            gcmONERROR(gcoPROFILER_GetProbeNumber(Hardware, &total_probe_number)); \
-            Memory = memory + total_probe_number * CoreId * (1 << clusterIDWidth); \
-            for (i = 0; i < (gctUINT32)(1 << clusterIDWidth); i++) \
-            { \
-                maxLatency += ((*(Memory + (counterId + offset) * (1 << clusterIDWidth) + i) & 0xfff000) >> 12); \
-                minLatency += (*(Memory + (counterId + offset) * (1 << clusterIDWidth) + i) & 0x000fff); \
-                if (minLatency == 4095) \
-                    minLatency = 0; \
-            } \
-        } \
-    } \
-    while (gcvFALSE)
+#define gcmGET_LATENCY_COUNTER(minLatency, maxLatency, counterId)                                      \
+    do {                                                                                               \
+        if (*(memory + (counterId + offset) * (1 << clusterIDWidth)) == 0xdeaddead) {                  \
+            minLatency = 0xdeaddead;                                                                   \
+            maxLatency = 0xdeaddead;                                                                   \
+        } else {                                                                                       \
+            gctUINT32     i;                                                                           \
+            gctUINT32_PTR Memory             = memory;                                                 \
+            gctUINT32     total_probe_number = 0;                                                      \
+            gcmONERROR(gcoPROFILER_GetProbeNumber(Hardware, &total_probe_number));                     \
+            Memory = memory + total_probe_number * CoreId * (1 << clusterIDWidth);                     \
+            for (i = 0; i < (gctUINT32)(1 << clusterIDWidth); i++) {                                   \
+                maxLatency +=                                                                          \
+                    ((*(Memory + (counterId + offset) * (1 << clusterIDWidth) + i) & 0xfff000) >> 12); \
+                minLatency +=                                                                          \
+                    (*(Memory + (counterId + offset) * (1 << clusterIDWidth) + i) & 0x000fff);         \
+                if (minLatency == 4095)                                                                \
+                    minLatency = 0;                                                                    \
+            }                                                                                          \
+        }                                                                                              \
+    } while (gcvFALSE)
 
 #define NumOfPerFrameBuf        16
 #define NumOfPerDrawBuf         128
 
-struct _gcsAppInfoCounter
-{
+struct _gcsAppInfoCounter {
     gctUINT32                   count[4];
 };
+
 typedef struct _gcsAppInfoCounter gcsAppInfoCounter;
 
-typedef struct gcsCounterBuffer * gcsCounterBuffer_PTR;
+typedef struct gcsCounterBuffer   *gcsCounterBuffer_PTR;
 
-struct gcsCounterBuffer
-{
-    gcsPROFILER_COUNTERS        *counters;
+struct gcsCounterBuffer {
+    gctPOINTER                      counters;
     gcsPROFILER_VIP_PROBE_COUNTERS *vipCounters;
-    gctHANDLE                   couterBufobj;
-    gctUINT32                   probeAddress;
-    gctPOINTER                  logicalAddress;
-    gceCOUNTER_OPTYPE           opType;
-    gctUINT32                   opID;
-    gcsAppInfoCounter           opCount;
-    gctUINT32                   currentShaderId[6];
-    gctUINT32                   startPos;
-    gctUINT32                   endPos;
-    gctUINT32                   dataSize;
-    gctBOOL                     available;
-    gctBOOL                     needDump;
-    gcsCounterBuffer_PTR        next;
-    gcsCounterBuffer_PTR        prev;
+    gctHANDLE                       couterBufobj;
+    gctADDRESS                      probeAddress;
+    gctPOINTER                      logicalAddress;
+    gceCOUNTER_OPTYPE               opType;
+    gctUINT32                       opID;
+    gcsAppInfoCounter               opCount;
+    gctUINT32                       currentShaderId[6];
+    gctUINT32                       startPos;
+    gctUINT32                       endPos;
+    gctUINT32                       dataSize;
+    gctBOOL                         available;
+    gctBOOL                         needDump;
+    gcsCounterBuffer_PTR            next;
+    gcsCounterBuffer_PTR            prev;
 };
 
-typedef struct _gcoPROBE         gcoPROBE;
-struct _gcoPROBE
-{
+typedef struct _gcoPROBE            gcoPROBE;
+struct _gcoPROBE {
     gctUINT32                   address;
     gctUINT32                   offset;
 };
 
-typedef struct _gcoMODULE         gcoMODULE;
-struct _gcoMODULE
-{
+typedef struct _gcoMODULE           gcoMODULE;
+struct _gcoMODULE {
     gctUINT32                   name;
     gctUINT32                   address;
     gctUINT32                   numProbe;
     gcoPROBE                    probe[256];
 };
 
-typedef struct _gcoPROFILER *        gcoPROFILER;
+typedef struct _gcoPROFILER         *gcoPROFILER;
 
-struct _gcoPROFILER
-{
+struct _gcoPROFILER {
     gctBOOL                     enable;
     gctBOOL                     enablePrint;
     gctBOOL                     disableProbe;
@@ -1037,7 +1062,7 @@ struct _gcoPROFILER
     gctBOOL                     vipProbe;
 
     gctFILE                     file;
-    gctCHAR*                    fileName;
+    gctCHAR                    *fileName;
     gceProfilerMode             profilerMode;
     gceProbeMode                probeMode;
 
@@ -1060,14 +1085,12 @@ struct _gcoPROFILER
     gctBOOL                     bZDP3;
 };
 
-typedef struct _gcsPROBESTATES
-{
+typedef struct _gcsPROBESTATES {
     gceProbeStatus              status;
-    gctUINT32                   probeAddress;
-}gcsPROBESTATES;
+    gctADDRESS                  probeAddress;
+} gcsPROBESTATES;
 
-typedef struct _gckPROFILER
-{
+typedef struct _gckPROFILER {
     /* Enable profiling */
     gctBOOL                     profileEnable;
     /* Profile mode */
@@ -1083,93 +1106,67 @@ typedef struct _gckPROFILER
     gcsPROFILER_COUNTERS_PART2  latestProfiler_part2;
     gcsPROFILER_COUNTERS_PART2  histroyProfiler_part2;
     gcsPROFILER_COUNTERS_PART2  preProfiler_part2;
-}gckPROFILER;
+} gckPROFILER;
 
 /* Construct a Profiler object per context. */
 gceSTATUS
-gcoPROFILER_Construct(
-    OUT gcoPROFILER * Profiler
-    );
+gcoPROFILER_Construct(OUT gcoPROFILER *Profiler);
 
 gceSTATUS
-gcoPROFILER_Destroy(
-    IN gcoPROFILER Profiler
-    );
+gcoPROFILER_Destroy(IN gcoPROFILER Profiler);
 
 gceSTATUS
-gcoPROFILER_Initialize(
-    IN gcoPROFILER Profiler
-    );
+gcoPROFILER_Initialize(IN gcoPROFILER Profiler);
 
 gceSTATUS
-gcoPROFILER_Enable(
-    IN gcoPROFILER Profiler
-    );
+gcoPROFILER_Enable(IN gcoPROFILER Profiler);
 
 gceSTATUS
-gcoPROFILER_Disable(
-    void
-    );
+gcoPROFILER_Disable(void);
 
 gceSTATUS
-gcoPROFILER_EnableCounters(
-    IN gcoPROFILER Profiler,
-    IN gceCOUNTER_OPTYPE operationType
-    );
+gcoPROFILER_EnableCounters(IN gcoPROFILER       Profiler,
+                           IN gceCOUNTER_OPTYPE operationType);
 
 gceSTATUS
-gcoPROFILER_End(
-    IN gcoPROFILER Profiler,
-    IN gceCOUNTER_OPTYPE operationType,
-    IN gctUINT32 OpID
-    );
+gcoPROFILER_Start(IN gcoPROFILER Profiler);
 
 gceSTATUS
-gcoPROFILER_Write(
-    IN gcoPROFILER Profiler,
-    IN gctSIZE_T ByteCount,
-    IN gctCONST_POINTER Data
-    );
+gcoPROFILER_End(IN gcoPROFILER       Profiler,
+                IN gceCOUNTER_OPTYPE operationType,
+                IN gctUINT32         OpID);
 
 gceSTATUS
-gcoPROFILER_Flush(
-    IN gcoPROFILER Profiler
-    );
+gcoPROFILER_Write(IN gcoPROFILER      Profiler,
+                  IN gctSIZE_T        ByteCount,
+                  IN gctCONST_POINTER Data);
 
 gceSTATUS
-gcoPROFILER_GetProbeNumber(
-    IN gcoHARDWARE Hardware,
-    OUT gctUINT32 *TotalProbeNumber
-    );
-
-gctUINT32 gcoPROFILER_getMuduleNum(
-    IN gcoPROFILER Profiler
-    );
-
-gctUINT32 gcoPROFILER_getMuduleProbeNum(
-    IN gcoPROFILER Profiler,
-    IN gctUINT32 index
-    );
-
-gctUINT32 gcoPROFILER_getModuleAddress(
-    IN gcoPROFILER Profiler,
-    IN gctUINT32 ModuleIndex
-    );
-
-gctUINT32 gcoPROFILER_getProbeAddress(
-    IN gcoPROFILER Profiler,
-    IN gctUINT32 ModuleIndex,
-    IN gctUINT32 ProbeIndex
-    );
-
-gctUINT32 gcoPROFILER_getCounterBufferSize(
-    IN gcoPROFILER Profiler
-    );
+gcoPROFILER_Flush(IN gcoPROFILER Profiler);
 
 gceSTATUS
-gcoPROFILER_WriteChipInfo(
-    IN gcoPROFILER Profiler
-    );
+gcoPROFILER_GetProbeNumber(IN gcoHARDWARE Hardware,
+                           OUT gctUINT32  *TotalProbeNumber);
+
+gctUINT32
+gcoPROFILER_getMuduleNum(IN gcoPROFILER Profiler);
+
+gctUINT32
+gcoPROFILER_getMuduleProbeNum(IN gcoPROFILER Profiler, IN gctUINT32 index);
+
+gctUINT32
+gcoPROFILER_getModuleAddress(IN gcoPROFILER Profiler, IN gctUINT32 ModuleIndex);
+
+gctUINT32
+gcoPROFILER_getProbeAddress(IN gcoPROFILER Profiler,
+                            IN gctUINT32   ModuleIndex,
+                            IN gctUINT32   ProbeIndex);
+
+gctUINT32
+gcoPROFILER_getCounterBufferSize(IN gcoPROFILER Profiler);
+
+gceSTATUS
+gcoPROFILER_WriteChipInfo(IN gcoPROFILER Profiler);
 
 #ifdef __cplusplus
 }

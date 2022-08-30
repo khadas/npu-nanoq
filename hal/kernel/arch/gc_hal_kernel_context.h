@@ -2,7 +2,7 @@
 *
 *    The MIT License (MIT)
 *
-*    Copyright (c) 2014 - 2021 Vivante Corporation
+*    Copyright (c) 2014 - 2022 Vivante Corporation
 *
 *    Permission is hereby granted, free of charge, to any person obtaining a
 *    copy of this software and associated documentation files (the "Software"),
@@ -26,7 +26,7 @@
 *
 *    The GPL License (GPL)
 *
-*    Copyright (C) 2014 - 2021 Vivante Corporation
+*    Copyright (C) 2014 - 2022 Vivante Corporation
 *
 *    This program is free software; you can redistribute it and/or
 *    modify it under the terms of the GNU General Public License
@@ -61,21 +61,18 @@ extern "C" {
 #endif
 
 /* Maps state locations within the context buffer. */
-typedef struct _gcsSTATE_MAP * gcsSTATE_MAP_PTR;
-typedef struct _gcsSTATE_MAP
-{
+typedef struct _gcsSTATE_MAP *gcsSTATE_MAP_PTR;
+typedef struct _gcsSTATE_MAP {
     /* Index of the state in the context buffer. */
     gctUINT                     index;
 
     /* State mask. */
     gctUINT32                   mask;
-}
-gcsSTATE_MAP;
+} gcsSTATE_MAP;
 
 /* Context buffer. */
-typedef struct _gcsCONTEXT * gcsCONTEXT_PTR;
-typedef struct _gcsCONTEXT
-{
+typedef struct _gcsCONTEXT *gcsCONTEXT_PTR;
+typedef struct _gcsCONTEXT {
     /* For debugging: the number of context buffer in the order of creation. */
     gctUINT                     num;
 
@@ -96,7 +93,7 @@ typedef struct _gcsCONTEXT
     gctUINT32_PTR               logical;
 
     /* Hardware address of the context buffer. */
-    gctUINT32                   address;
+    gctADDRESS                  address;
 
     /* Pointer to the LINK commands. */
     gctPOINTER                  link2D;
@@ -116,12 +113,10 @@ typedef struct _gcsCONTEXT
 
     /* Next context buffer. */
     gcsCONTEXT_PTR              next;
-}
-gcsCONTEXT;
+} gcsCONTEXT;
 
-typedef struct _gcsRECORD_ARRAY_MAP * gcsRECORD_ARRAY_MAP_PTR;
-struct  _gcsRECORD_ARRAY_MAP
-{
+typedef struct _gcsRECORD_ARRAY_MAP *gcsRECORD_ARRAY_MAP_PTR;
+struct  _gcsRECORD_ARRAY_MAP {
     /* User pointer key. */
     gctUINT64                   key;
 
@@ -136,8 +131,7 @@ struct  _gcsRECORD_ARRAY_MAP
 #define USE_SW_RESET 1
 
 /* gckCONTEXT structure that hold the current context. */
-struct _gckCONTEXT
-{
+struct _gckCONTEXT {
     /* Object. */
     gcsOBJECT                   object;
 
@@ -174,7 +168,7 @@ struct _gckCONTEXT
     gcePIPE_SELECT              exitPipe;
 
     /* Variables used for building state buffer. */
-    gctUINT32                   lastAddress;
+    gctADDRESS                  lastAddress;
     gctSIZE_T                   lastSize;
     gctUINT32                   lastIndex;
     gctBOOL                     lastFixed;
@@ -189,8 +183,8 @@ struct _gckCONTEXT
     gcsSTATE_DELTA                prevDelta;
     gcsSTATE_DELTA_PTR            prevDeltaPtr;
     gcsSTATE_DELTA_RECORD_PTR     prevRecordArray;
-    gctUINT32 *                   prevMapEntryID;
-    gctUINT32 *                   prevMapEntryIndex;
+    gctUINT32                    *prevMapEntryID;
+    gctUINT32                    *prevMapEntryIndex;
 #endif
 };
 

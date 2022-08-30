@@ -1,6 +1,6 @@
 ##############################################################################
 #
-#    Copyright (c) 2005 - 2021 by Vivante Corp.  All rights reserved.
+#    Copyright (c) 2005 - 2022 by Vivante Corp.  All rights reserved.
 #
 #    The material in this file is confidential and contains trade secrets
 #    of Vivante Corporation. This is proprietary information owned by
@@ -228,8 +228,9 @@ EXPORTS
     gcoHAL_Destroy
     gcoHAL_DumpFrameDB
     gcoHAL_InitGPUProfile
-    gcoHAL_DumpGPUProfile
     gcoHAL_InitCoreIndexByType
+    gcoHAL_SetDeviceIndex
+    gcoHAL_GetCurrentDeviceIndex
     gcoHAL_SetCoreIndex
 
 
@@ -250,6 +251,7 @@ EXPORTS
     gcoHAL_QueryChipCount
     gcoHAL_Query3DCoreCount
     gcoHAL_QueryCluster
+    gcoHAL_QueryUscAttribCacheRatio
     gcoHAL_QueryChipFeature
     gcoHAL_QueryChipIdentity
     gcoHAL_QueryChipIdentityEx
@@ -289,6 +291,7 @@ EXPORTS
     gcoHAL_QueryMCFESemaphoreCapacity
     gcoHAL_CommandBufferAutoCommit
     gcoHAL_CommandBufferAutoSync
+    gcoHAL_CancelJob
 
 !IF "$(VIVANTE_ENABLE_3D)" == "1"
     gcoHAL_QueryShaderCaps
@@ -342,6 +345,7 @@ EXPORTS
     gcoSURF_GetSize
     gcoSURF_IsValid
     gcoSURF_Lock
+    gcoSURF_LockTileStatus
     gcoSURF_MapUserSurface
     gcoSURF_QueryFlags
     gcoSURF_QueryFormat
@@ -366,8 +370,7 @@ EXPORTS
     gcoSURF_QueryHints
     gcoSURF_UpdateMetadata
     gcoSURF_QueryVidMemNode
-    gcoSURF_Set2DSource
-    gcoSURF_Set2DTarget
+    gcoSURF_QueryVidMemMultiNode
 
 !IF "$(VIVANTE_ENABLE_3D)_$(VIVANTE_ENABLE_VG)" != "0_0"
 ;   Both 3D & VG have these functions.
@@ -403,6 +406,7 @@ EXPORTS
     gcoSURF_GetFence
     gcoSURF_WaitFence
     gcoSURF_AlignResolveRect
+    gcoSURF_ComputeBlit
     gcoSURF_DrawBlit
     gcoSURF_DrawBlitDepth
     gcsSURF_NODE_Construct
@@ -412,6 +416,8 @@ EXPORTS
     gcsSURF_NODE_GetHardwareAddress
     gcsSURF_NODE_SetHardwareAddress
     gcsSURF_NODE_GetHWAddress
+    gcoHAL_TimeQuery_SendFence
+    gcoHAL_TimeQuery_WaitFence
 
     gcoSURF_FlushTileStatus
     gcoSURF_AppendTileStatus
@@ -461,6 +467,7 @@ EXPORTS
     gco3D_EnableTextureStage
     gco3D_InvokeThreadWalker
     gco3D_Semaphore
+    gco3D_FlushPipe
     gco3D_FlushSHL1Cache
     gco3D_SetAALineTexSlot
     gco3D_SetAALineWidth
@@ -609,6 +616,7 @@ EXPORTS
     gcoTEXTURE_RenderIntoMipMap
     gcoTEXTURE_RenderIntoMipMap2
     gcoTEXTURE_SetEndianHint
+    gcoTEXTURE_CheckHWSupportedImage
     gcoTEXTURE_Upload
     gcoTEXTURE_UploadCompressed
     gcoTEXTURE_UploadCompressedSub
@@ -650,6 +658,7 @@ EXPORTS
 !IF "$(VIVANTE_ENABLE_3D)" == "1"
     ; gcSHADER
     gcQueryShaderCompilerHwCfg
+    gcQueryShaderCompilerHwCfgWithHardware
     gcLoadShaders
     gcInvokeThreadWalker
     gcoSHADER_BindUniform
@@ -703,6 +712,85 @@ EXPORTS
     ; gcoCL
     gcoHARDWARE_InitializeCL
     gcoCLHardware_Construct
+    gcoCL_InitializeHardware
+    gcoCL_SetHardware
+    gcoCL_RestoreContext
+    gcoCL_CreateHW
+    gcoCL_CreateHWWithType
+    gcoCL_DestroyHW
+    gcoCL_GetHWConfigGpuCount
+    gcoCL_AllocateMemory
+    gcoCL_AllocateMemoryEx
+    gcoCL_GetPhysicalAddr
+    gcoCL_FreeMemory
+    gcoCL_WrapUserMemory
+    gcoCL_WrapUserMemoryEx
+    gcoCL_WrapUserPhysicalMemory
+    gcoCL_FlushMemory
+    gcoCL_InvalidateMemoryCache
+    gcoCL_ShareMemoryWithStream
+    gcoCL_ShareMemoryWithBufObj
+    gcoCL_UnshareMemory
+    gcoCL_FlushSurface
+    gcoCL_LockSurface
+    gcoCL_UnlockSurface
+    gcoCL_CreateTexture
+    gcoCL_DestroyTexture
+    gcoCL_SetupTexture
+    gcoCL_QueryDeviceInfo
+    gcoCL_QueryDeviceCount
+    gcoCL_QueryDeviceCountWithGPUType
+    gcoCL_QueryDeviceCountWithVIPType
+    gcoCL_QueryDeviceCountWith3D2DType
+    gcoCL_QueryBLTFenceEndianHint
+    gcoCL_Commit
+    gcoCL_CommitWithHardware
+    gcoCL_CreateSignal
+    gcoCL_DestroySignal
+    gcoCL_SubmitSignal
+    gcoCL_WaitSignal
+    gcoCL_Flush
+    gcoCL_FlushWithHardware
+    gcoCL_LoadKernel
+    gcoCL_InvokeKernel
+    gcoCL_InvokeThreadWalker
+    gcoCL_SetSignal
+    gcoCL_MemBltCopy
+    gcoCL_MemWaitAndGetFence
+    gcoCL_MemWaitAndGetFenceWithHardware
+    gcoCL_ChooseBltEngine
+    gcoCL_SetHardwareType
+    gcoCL_coreIdToChip
+    gcoCL_SubmitCmdBuffer
+    gcoCL_3dBltUnlock
+    gcoCL_3dBltLock
+    gcoCL_IsFeatureAvailable
+    gcoCL_ForceSetHardwareType
+    gcoCL_ForceRestoreHardwareType
+    gcoCL_MultiGPUSync
+    gcoCL_MultiGPUFlushCache
+    gcoCL_FlushCache
+    gcoCL_FlushCmdBuffer
+    gcoCL_SetDefaultHardware
+    gcoCL_SetTimeOut
+    gcoCL_SyncFreeMemory
+    gcoCL_GetProductName
+    gcoCL_GetPatchID
+    gcoCL_CommitCmdBuffer
+    gcoCL_ImportDmabuffer
+    gcoCL_MultiGPUAffinityConfig
+    gcoCL_GetOCLDeviceCount
+    gcoCL_CreateHWEx
+    gcoCL_EnableLocalMemory
+    gcoCL_GetUscCacheRatio
+    gcoCL_WrapUserPhysicalMemoryEx
+    gcoCL_ShareMemoryWithBufObjEx
+    gcoCL_UnshareMemoryEx
+    gcoCL_MemoryCache
+    gcoCL_DestroyHWEx
+    gcoCL_CreateSubMemory
+    gcoCL_SwitchHardware
+    gcoCL_RestoreHardware
 
     ; gcoPROFILER
 	gcoPROFILER_getVersion;
@@ -764,6 +852,7 @@ EXPORTS
     gcoBUFOBJ_AlignIndexBufferWhenNeeded
     gcoBUFOBJ_FastLock
     gcoBUFOBJ_Dump
+    gcoBUFOBJ_GetNode
 
     gcfSTATISTICS_AddData
     gcfSTATISTICS_MarkFrameEnd
@@ -780,6 +869,7 @@ EXPORTS
     gcoVX_Destroy
     gcoVX_BindImage
 	gcoVX_GetImageDescriptor
+    gcoVX_GetImageDescriptorVA40
     gcoVX_SetImageInfo
     gcoVX_BindKernel
     gcoVX_BindUniform
@@ -797,6 +887,8 @@ EXPORTS
     gcoVX_Flush
     gcoVX_TriggerAccelerator
     gcoVX_ProgrammCrossEngine
+    gcoVX_ProgrammDMAEngine
+    gcoVX_ProgrammNNLoopCommand
     gcoVX_SetNNImage
     gcoVX_GetNNConfig
     gcoVX_QueryHWChipInfo
@@ -811,6 +903,8 @@ EXPORTS
     gcoVX_WaitNNEvent
     gcoVX_SetRemapAddress
     gcoVX_ProgrammYUV2RGBScale
+    gcoVX_ProgrammStreamProcessor
+    gcoVX_StreamProcessorHasVector
     gcoVX_CaptureState
     gcoVX_GetCaptureBufferInfo
     gcoVX_StartCAPBUF
@@ -828,6 +922,7 @@ EXPORTS
     gcoVX_MultiGPUSync
     gcoVX_QueryNNClusters
     gcoVX_QueryNNRingCount
+    gcoVX_SetCurrentDevice
 
     DWLSetupApbFilter
     DWLReadAxiFeHwCfg

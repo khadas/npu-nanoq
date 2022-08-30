@@ -24,14 +24,18 @@
 
 #ifndef _VSI_NN_LOG_H
 #define _VSI_NN_LOG_H
-#include <stdio.h>
+
+#include "utils/vsi_nn_util.h"
 
 #if defined(__cplusplus)
 extern "C"{
 #endif
 
-#ifdef _MSC_VER
-#define snprintf _snprintf
+#if (defined(_MSC_VER) || defined(_WIN32) || defined(__MINGW32))
+#define snprintf(buffer, count, format, ...) \
+    _snprintf_s(buffer, count, _TRUNCATE, format, ##__VA_ARGS__)
+#define vsnprintf(buffer, count, format, args) \
+    _vsnprintf_s(buffer, count, _TRUNCATE, format, args)
 #endif
 
 typedef enum _vsi_nn_log_level_e
@@ -46,7 +50,7 @@ typedef enum _vsi_nn_log_level_e
 
 #define VSI_NN_MAX_DEBUG_BUFFER_LEN 1024
 #define VSILOGE( fmt, ... ) \
-    vsi_nn_LogMsg(VSI_NN_LOG_ERROR, "E [%s:%d]" fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+    vsi_nn_LogMsg(VSI_NN_LOG_ERROR, "E [%s:%s:%d]" fmt, __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #define VSILOGW( fmt, ... ) \
     vsi_nn_LogMsg(VSI_NN_LOG_WARN,  "W [%s:%d]" fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #define VSILOGI( fmt, ... ) \
@@ -68,4 +72,3 @@ OVXLIB_API void vsi_nn_LogMsg
 #endif
 
 #endif
-

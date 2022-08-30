@@ -71,7 +71,9 @@ vxCreateTensor_11(
     vx_enum       data_format,
     vx_int8       fixed_point_pos
     );
+#if !VX_VA40_EXT_SUPPORT
 #define vxCreateTensor    vxCreateTensor_11
+#endif
 
 /* keep the backward compatibility with spec 1.1 for vxCreateVirtualTensor */
 VX_API_ENTRY vx_tensor VX_API_CALL
@@ -82,7 +84,10 @@ vxCreateVirtualTensor_11(
     vx_enum       data_format,
     vx_int8       fixed_point_pos
 );
+
+#if !VX_VA40_EXT_SUPPORT
 #define vxCreateVirtualTensor    vxCreateVirtualTensor_11
+#endif
 
 /* keep the backward compatibility with spec 1.1 for vxCreateTensorFromView */
 VX_API_ENTRY vx_tensor VX_API_CALL

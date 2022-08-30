@@ -64,6 +64,10 @@ typedef struct _vsi_nn_hw_config_t
     uint32_t subGroupSize;
 #endif
     uint32_t use_40bits_va;
+    uint32_t support_stream_processor;
+    uint32_t sp_exec_count;
+    uint32_t sp_vector_depth;
+    uint32_t sp_per_core_vector_depth;
 } vsi_nn_hw_config_t;
 
 typedef struct _vsi_nn_runtime_option_t
@@ -71,6 +75,7 @@ typedef struct _vsi_nn_runtime_option_t
     int32_t enable_shader;
     int32_t enable_opcheck;
     int32_t enable_concat_optimize;
+    int32_t enable_asymi8_to_u8;
 } vsi_nn_runtime_option_t;
 
 /**

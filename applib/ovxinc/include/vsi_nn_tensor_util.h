@@ -537,6 +537,7 @@ OVXLIB_API vsi_nn_tensor_t * vsi_nn_CreateTensorFromHandle
     uint8_t              * data,
     vsi_nn_tensor_attr_t * attr
     );
+
 OVXLIB_API vsi_status vsi_nn_SwapInputBuffer
     (
 	vsi_nn_tensor_t * tensor,
@@ -761,6 +762,13 @@ vsi_bool vsi_nn_ConvertTensor
     vsi_nn_graph_t* graph,
     vsi_nn_tensor_t* input,
     vsi_nn_tensor_t* output
+    );
+
+vsi_nn_tensor_t * vsi_nn_dropout_tensor
+    (
+    vsi_nn_graph_t  * graph,
+    vsi_nn_tensor_t * input,
+    float             rate
     );
 
 #ifdef __cplusplus

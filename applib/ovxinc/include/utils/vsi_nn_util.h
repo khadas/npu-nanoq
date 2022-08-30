@@ -28,6 +28,7 @@
 /*-------------------------------------------
                 Includes
 -------------------------------------------*/
+#include <stdio.h>
 #include "vsi_nn_platform.h"
 #include "vsi_nn_tensor.h"
 #include "vsi_nn_types.h"
@@ -50,9 +51,47 @@ extern "C" {
 
 #define vsi_safe_release_tensor(_t) if(_t){vsi_nn_ReleaseTensor(&(_t)); _t = NULL;}
 
-#define END_OF_VARIADIC_ARGUMENTS       0xbadcaffe
+#define END_OF_VARIADIC_ARGUMENTS       ((size_t)0xbadcaffebadcaffe)
+
 #define FOREACH_ARGS(_args, _next, _arg_type) \
     while(((_arg_type)((size_t)END_OF_VARIADIC_ARGUMENTS)) != (_next = va_arg(_args, _arg_type)))
+
+#define BITS_PER_BYTE 8
+
+#define VSI_NN_STRINGIZE(X) VSI_NN_DO_STRINGIZE(X)
+#define VSI_NN_DO_STRINGIZE(X) #X
+
+#define VSI_NN_JOIN(X, Y) VSI_NN_DO_JOIN(X, Y)
+#define VSI_NN_DO_JOIN(X, Y) VSI_NN_DO_JOIN2(X,Y)
+#define VSI_NN_DO_JOIN2(X, Y) X##Y
+
+#if (defined(_MSC_VER) || defined(_WIN32) || defined(__MINGW32))
+    #define VSI_NN_DEPRECATED(symbol, hints) \
+       __declspec(deprecated(VSI_NN_STRINGIZE(hints))) symbol
+
+    #define VSI_NN_SUPPRESS_DEPRECATED_BEGIN \
+        __pragma(warning( push )) \
+        __pragma(warning(disable : 4996))
+    #define VSI_NN_SUPPRESS_DEPRECATED_END \
+        __pragma(warning(pop))
+
+#elif defined(__GNUC__)
+    #define VSI_NN_DEPRECATED(symbol, hints) \
+        symbol __attribute__((deprecated(VSI_NN_STRINGIZE(hints))))
+
+    #define VSI_NN_SUPPRESS_DEPRECATED_BEGIN \
+        _Pragma("GCC diagnostic push")  \
+        _Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
+
+    #define VSI_NN_SUPPRESS_DEPRECATED_END \
+        _Pragma("GCC diagnostic pop")
+#else
+    #define VSI_NN_DEPRECATED(symbol, hints) \
+        symbol
+
+    #define VSI_NN_SUPPRESS_DEPRECATED_BEGIN
+    #define VSI_NN_SUPPRESS_DEPRECATED_END
+#endif
 
 /*-------------------------------------------
                   Functions
@@ -242,6 +281,21 @@ OVXLIB_API const char* vsi_nn_DescribeStatus
     vsi_status status
     );
 
+OVXLIB_API vsi_status vsi_nn_Pack4bitData
+    (
+    vsi_nn_tensor_t * tensor,
+    uint8_t   * src,
+    uint8_t * dest
+    );
+
+OVXLIB_API vsi_status vsi_nn_Unpack4bitData
+    (
+    vsi_nn_tensor_t * tensor,
+    uint8_t   * src,
+    uint8_t * dest,
+    vsi_nn_type_e type
+    );
+
 vsi_size_t vsi_nn_compute_filter_shape
     (
     vsi_nn_pad_e padding_type,
@@ -259,6 +313,16 @@ void vsi_nn_compute_padding
     uint32_t   * dilation,
     vsi_nn_pad_e pad_type,
     vsi_size_t   * out_pad
+    );
+
+void vsi_nn_compute_padding_3d
+    (
+    const vsi_size_t   in_shape[3],
+    const vsi_size_t   ksize[3],
+    const uint32_t     stride[3],
+    const uint32_t     dilation[3],
+    const vsi_nn_pad_e pad_type,
+    vsi_size_t   out_pad[6]
     );
 
 void vsi_nn_compute_padding_conv1d
@@ -317,7 +381,7 @@ int32_t vsi_nn_partition
  * @param[in]  num Number of tensors.
  * @param[out] out_tensors Ordered tensors
  * */
-static inline void vsi_nn_reorder_tensor
+static VSI_INLINE_API void vsi_nn_reorder_tensor
     (
     vsi_nn_tensor_t** tensors,
     const int32_t* order,
@@ -346,6 +410,22 @@ vsi_bool vsi_nn_is_same_type
     vsi_nn_tensor_t * dst
     );
 
+vsi_bool vsi_nn_is_broadcast_operaton
+    (
+    vsi_nn_tensor_t            ** inputs,
+    size_t                        input_num,
+    vsi_nn_tensor_t            *  output
+    );
+
+vsi_bool vsi_nn_is_broadcast_axes_operaton
+    (
+    vsi_nn_tensor_t            ** inputs,
+    size_t                        input_num,
+    vsi_nn_tensor_t            *  output,
+    int32_t                    *  axis,
+    int32_t                       axis_num
+    );
+
 float vsi_nn_get_tensor_scale
     (
     vsi_nn_tensor_t * tensor
@@ -355,6 +435,39 @@ int32_t vsi_nn_get_tensor_zero_point
     (
     vsi_nn_tensor_t * tensor
     );
+
+void vsi_nn_get_tensor_clamp_min_max
+    (
+    vsi_nn_tensor_t * input,
+    float *clampMin,
+    float *clampMax
+    );
+
+char* vsi_nn_strncpy
+    (
+    char* dest,
+    const char* source,
+    size_t count
+    );
+
+char* vsi_nn_strncat
+    (
+    char* dest,
+    const char* source,
+    size_t count
+    );
+
+char* vsi_nn_getenv
+    (
+    const char * var_name
+    );
+
+FILE* vsi_nn_fopen
+    (
+    const char * file_name,
+    const char * mode
+    );
+
 #ifdef __cplusplus
 }
 #endif

@@ -2,7 +2,7 @@
 *
 *    The MIT License (MIT)
 *
-*    Copyright (c) 2014 - 2021 Vivante Corporation
+*    Copyright (c) 2014 - 2022 Vivante Corporation
 *
 *    Permission is hereby granted, free of charge, to any person obtaining a
 *    copy of this software and associated documentation files (the "Software"),
@@ -26,7 +26,7 @@
 *
 *    The GPL License (GPL)
 *
-*    Copyright (C) 2014 - 2021 Vivante Corporation
+*    Copyright (C) 2014 - 2022 Vivante Corporation
 *
 *    This program is free software; you can redistribute it and/or
 *    modify it under the terms of the GNU General Public License
@@ -138,7 +138,7 @@ gctaOS_AllocateSecurityMemory(
 {
     gceSTATUS status;
 
-    gcmkONERROR(gckOS_AllocateNonPagedMemory(Os->os, gcvFALSE, gcvALLOC_FLAG_CONTIGUOUS, Bytes, (gctPHYS_ADDR *)Physical, Logical));
+    gcmkONERROR(gckOS_AllocateNonPagedMemory(Os->os, gcvNULL, gcvFALSE, gcvALLOC_FLAG_CONTIGUOUS, Bytes, (gctPHYS_ADDR *)Physical, Logical));
 
     return gcvSTATUS_OK;
 
@@ -168,7 +168,7 @@ gctaOS_AllocateNonSecurityMemory(
 {
     gceSTATUS status;
 
-    gcmkONERROR(gckOS_AllocateNonPagedMemory(Os->os, gcvFALSE, gcvALLOC_FLAG_CONTIGUOUS, Bytes, (gctPHYS_ADDR *)Physical, Logical));
+    gcmkONERROR(gckOS_AllocateNonPagedMemory(Os->os, gcvNULL, gcvFALSE, gcvALLOC_FLAG_CONTIGUOUS, Bytes, (gctPHYS_ADDR *)Physical, Logical));
 
     return gcvSTATUS_OK;
 
@@ -233,7 +233,7 @@ gceSTATUS gctaOS_WriteRegister(
     IN gctUINT32 Data
     )
 {
-    return gckOS_WriteRegisterEx(Os->os, Core, Address, Data);
+    return gcvSTATUS_OK;
 }
 
 gceSTATUS gctaOS_ReadRegister(
@@ -242,7 +242,7 @@ gceSTATUS gctaOS_ReadRegister(
     IN gctUINT32 *Data
     )
 {
-    return gckOS_ReadRegisterEx(Os->os, Core, Address, Data);
+    return gcvSTATUS_OK;
 }
 
 gceSTATUS
@@ -320,7 +320,7 @@ gctaOS_SetGPUPower(
     IN gctBOOL Power
     )
 {
-    return gckOS_SetGPUPower(Os->os, Core, Power, Clock);
+    return gcvSTATUS_OK;
 }
 
 
