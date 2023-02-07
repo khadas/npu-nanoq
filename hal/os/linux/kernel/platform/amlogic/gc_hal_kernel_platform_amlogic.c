@@ -231,9 +231,15 @@ static void set_clock(struct platform_device *pdev)
 static void put_clock(struct platform_device *pdev)
 {
     if (!IS_ERR(npu_axi_clk)) {
+        if (__clk_is_enabled(npu_axi_clk)) {
+            clk_disable_unprepare(npu_axi_clk);
+        }
         devm_clk_put(&pdev->dev,npu_axi_clk);
     }
     if (!IS_ERR(npu_core_clk)) {
+        if (__clk_is_enabled(npu_core_clk)) {
+            clk_disable_unprepare(npu_core_clk);
+        }
         devm_clk_put(&pdev->dev,npu_core_clk);
     }
 }
@@ -246,16 +252,28 @@ static int clk_switch(int flag)
 
     if (flag)
     {
-        clk_prepare_enable(npu_axi_clk);
+        if (!__clk_is_enabled(npu_axi_clk))
+        {
+            clk_prepare_enable(npu_axi_clk);
+        }
         clk_set_rate(npu_axi_clk,nanoqFreq);
 
-        clk_prepare_enable(npu_core_clk);
+        if (!__clk_is_enabled(npu_core_clk))
+        {
+            clk_prepare_enable(npu_core_clk);
+        }
         clk_set_rate(npu_core_clk,nanoqFreq);
     }
     else
     {
-        clk_disable_unprepare(npu_axi_clk);
-        clk_disable_unprepare(npu_core_clk);
+        if (__clk_is_enabled(npu_axi_clk))
+        {
+            clk_disable_unprepare(npu_axi_clk);
+        }
+        if (__clk_is_enabled(npu_core_clk))
+        {
+            clk_disable_unprepare(npu_core_clk);
+        }
     }
 
     return 0;
@@ -403,18 +421,26 @@ void Runtime_downpower_88(void)
 
     clk_switch(0);
 }
-void Runtime_getpower_99(void)
+void Runtime_getpower_99(struct platform_device *pdev)
 {
 #if (LINUX_VERSION_CODE <= KERNEL_VERSION(4, 10, 0))
     power_domain_switch(NN_PD_0X99,PWR_ON);
+#elif (LINUX_VERSION_CODE > KERNEL_VERSION(5, 14, 0))
+    int ret;
+    pm_runtime_enable(&pdev->dev);
+    ret = pm_runtime_get_sync(&pdev->dev);
+    if (ret < 0) printk("===runtime getpower error===\n");
 #endif
 
     clk_switch(1);
 }
-void Runtime_downpower_99(void)
+void Runtime_downpower_99(struct platform_device *pdev)
 {
 #if (LINUX_VERSION_CODE <= KERNEL_VERSION(4, 10, 0))
     power_domain_switch(NN_PD_0X99,PWR_OFF);
+#elif (LINUX_VERSION_CODE > KERNEL_VERSION(5, 14, 0))
+    pm_runtime_put_sync(&pdev->dev);
+    pm_runtime_disable(&pdev->dev);
 #endif
 
     clk_switch(0);
@@ -516,7 +542,7 @@ gceSTATUS  _SetPower(IN gcsPLATFORM * Platform,IN gceCORE GPU,IN gctBOOL Enable)
                 Runtime_downpower_88();
                 break;
             case 3:
-                Runtime_downpower_99();
+                Runtime_downpower_99(pdev);
                 break;
             case 4:
                 Runtime_downpower_be(pdev);
@@ -546,7 +572,7 @@ gceSTATUS  _SetPower(IN gcsPLATFORM * Platform,IN gceCORE GPU,IN gctBOOL Enable)
                 mdelay(1);
                 break;
             case 3:
-                Runtime_getpower_99();
+                Runtime_getpower_99(pdev);
                 mdelay(1);
                 break;
             case 4:
@@ -587,9 +613,9 @@ gceSTATUS _Reset(IN gcsPLATFORM * Platform, IN gceCORE GPU)
             Runtime_getpower_88();
             break;
         case 3:
-            Runtime_downpower_99();
+            Runtime_downpower_99(pdev);
             mdelay(10);
-            Runtime_getpower_99();
+            Runtime_getpower_99(pdev);
             break;
         case 4:
             Runtime_downpower_be(pdev);
