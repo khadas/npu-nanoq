@@ -173,7 +173,7 @@ static int import_page_map(gckOS Os, struct um_desc *um,
 
     down_read(&current_mm_mmap_sem);
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 9, 0) && LINUX_VERSION_CODE < KERNEL_VERSION(4, 10, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 9, 0) && LINUX_VERSION_CODE < KERNEL_VERSION(4, 20, 0)
     result = get_user_pages_longterm(
 #elif LINUX_VERSION_CODE > KERNEL_VERSION(5, 6, 0)
     result = pin_user_pages(
