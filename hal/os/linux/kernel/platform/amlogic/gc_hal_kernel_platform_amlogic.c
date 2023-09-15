@@ -283,6 +283,35 @@ static int clk_switch(int flag)
 void Getpower_88(struct platform_device *pdev)
 {
     uint32_t readReg = 0;
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0))
+    _RegRead(AO_RTI_GEN_PWR_SLEEP0,&readReg);
+    readReg = (readReg & 0xfffcffff);
+    _RegWrite(AO_RTI_GEN_PWR_SLEEP0, readReg);
+    mdelay(1);
+
+    _RegWrite(HHI_NANOQ_MEM_PD_REG0, 0x0);
+    mdelay(1);
+    _RegWrite(HHI_NANOQ_MEM_PD_REG1, 0x0);
+    mdelay(1);
+
+    _RegRead(RESET_LEVEL2,&readReg);
+    readReg = (readReg & 0xffffefff);
+    _RegWrite(RESET_LEVEL2, readReg);
+    mdelay(1);
+
+    _RegRead(AO_RTI_GEN_PWR_ISO0,&readReg);
+    readReg = (readReg & 0xfffcffff);
+    _RegWrite(AO_RTI_GEN_PWR_ISO0, readReg);
+    mdelay(1);
+
+    _RegRead(RESET_LEVEL2,&readReg);
+    readReg = (readReg | (0x1<<12));
+    _RegWrite(RESET_LEVEL2, readReg);
+    mdelay(1);
+
+    set_clock(pdev);
+    mdelay(1);
+#else
     _RegRead(AO_RTI_GEN_PWR_SLEEP0,&readReg);
     readReg = (readReg & 0xfffcffff);
     _RegWrite(AO_RTI_GEN_PWR_SLEEP0, readReg);
@@ -303,6 +332,7 @@ void Getpower_88(struct platform_device *pdev)
     _RegWrite(RESET_LEVEL2, readReg);
 
     set_clock(pdev);
+#endif
 }
 void Getpower_99(struct platform_device *pdev)
 {
@@ -337,6 +367,25 @@ void Getpower_0x1000000e(struct platform_device *pdev)
 void Downpower_88(struct platform_device *pdev)
 {
     uint32_t readReg = 0;
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0))
+    put_clock(pdev);
+    mdelay(1);
+
+    _RegRead(AO_RTI_GEN_PWR_ISO0,&readReg);
+    readReg = (readReg | 0x30000);
+    _RegWrite(AO_RTI_GEN_PWR_ISO0, readReg);
+    mdelay(1);
+
+    _RegWrite(HHI_NANOQ_MEM_PD_REG0, 0xffffffff);
+    mdelay(1);
+    _RegWrite(HHI_NANOQ_MEM_PD_REG1, 0xffffffff);
+    mdelay(1);
+
+    _RegRead(AO_RTI_GEN_PWR_SLEEP0,&readReg);
+    readReg = (readReg | 0x30000);
+    _RegWrite(AO_RTI_GEN_PWR_SLEEP0, readReg);
+    mdelay(1);
+#else
     _RegRead(AO_RTI_GEN_PWR_ISO0,&readReg);
     readReg = (readReg | 0x30000);
     _RegWrite(AO_RTI_GEN_PWR_ISO0, readReg);
@@ -349,6 +398,7 @@ void Downpower_88(struct platform_device *pdev)
     _RegWrite(AO_RTI_GEN_PWR_SLEEP0, readReg);
 
     put_clock(pdev);
+#endif
 }
 void Downpower_99(struct platform_device *pdev)
 {
@@ -382,6 +432,7 @@ void Downpower_0x1000000e(struct platform_device *pdev)
 /* Runtime power manage */
 void Runtime_getpower_88(void)
 {
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 10, 0))
     uint32_t readReg = 0;
     _RegRead(AO_RTI_GEN_PWR_SLEEP0,&readReg);
     readReg = (readReg & 0xfffcffff);
@@ -403,10 +454,12 @@ void Runtime_getpower_88(void)
     _RegWrite(RESET_LEVEL2, readReg);
 
     clk_switch(1);
+#endif
 
 }
 void Runtime_downpower_88(void)
 {
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 10, 0))
     uint32_t readReg = 0;
     _RegRead(AO_RTI_GEN_PWR_ISO0,&readReg);
     readReg = (readReg | 0x30000);
@@ -420,6 +473,7 @@ void Runtime_downpower_88(void)
     _RegWrite(AO_RTI_GEN_PWR_SLEEP0, readReg);
 
     clk_switch(0);
+#endif
 }
 void Runtime_getpower_99(struct platform_device *pdev)
 {

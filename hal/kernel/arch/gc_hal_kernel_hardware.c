@@ -8124,7 +8124,11 @@ _PowerEnum(gceCHIPPOWERSTATE State)
                      gcvPOWER_ON_AUTO == 4,
                      "array subscript does not match");
 
-    if (State & gcvPOWER_FLAG_BROADCAST)
+    if (State == -1)
+    {
+        return "unknown";
+    }
+    else if (State & gcvPOWER_FLAG_BROADCAST)
     {
         return broadcastStates[State & ~gcvPOWER_FLAG_BROADCAST];
     }
