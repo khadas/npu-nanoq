@@ -432,7 +432,10 @@ void Downpower_0x1000000e(struct platform_device *pdev)
 /* Runtime power manage */
 void Runtime_getpower_88(void)
 {
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 10, 0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0))
+    clk_switch(1);
+    mdelay(1);
+#else
     uint32_t readReg = 0;
     _RegRead(AO_RTI_GEN_PWR_SLEEP0,&readReg);
     readReg = (readReg & 0xfffcffff);
@@ -459,7 +462,10 @@ void Runtime_getpower_88(void)
 }
 void Runtime_downpower_88(void)
 {
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 10, 0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0))
+    clk_switch(0);
+    mdelay(1);
+#else
     uint32_t readReg = 0;
     _RegRead(AO_RTI_GEN_PWR_ISO0,&readReg);
     readReg = (readReg | 0x30000);
