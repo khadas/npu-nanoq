@@ -1,18 +1,18 @@
-/****************************************************************************
-*
-*    Copyright (c) 2019  by amlogic Corp.  All rights reserved.
-*
-*    The material in this file is confidential and contains trade secrets
-*    of amlogic Corporation. No part of this work may be disclosed,
-*    reproduced, copied, transmitted, or used in any way for any purpose,
-*    without the express written permission of amlogic Corporation.
-*
-*****************************************************************************/
+/*
+ * Copyright (c) 2022 Amlogic, Inc. All rights reserved.
+ *
+ * This source code is subject to the terms and conditions defined in the
+ * file 'LICENSE' which is part of this source code package.
+ *
+ * aml_nnsdk
+ */
+
 
 #ifndef _AMLNNDEMO_H
 #define _AMLNNDEMO_H
 #include "nn_sdk.h"
 #include "nn_util.h"
+//#include "nn_auto_test.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -92,7 +92,7 @@ typedef struct __nn_face_recognize
     float faceVector[512];
 }face_recognize_out_t;
 /*=================================================
-output of aml_module_t type:FACE_COMPARISION
+output of aml_module_t type:FACE_COMPARISON
 compare the input two image whether the same person or not:
 compareScore: the score of compare two input face,
 if compareScore >= 1.18, same person for input two face
@@ -164,6 +164,7 @@ typedef struct __nn_bodypos
 }bodypos_t;
 typedef struct __nn_body_pose
 {
+    unsigned int  detNum;
     bodypos_t bpos[18];
 }body_pose_out_t;
 
@@ -226,13 +227,33 @@ typedef struct __nn_car_recognize
     float confidence;
     unsigned char val[32];
 }car_license_out_t;
-//////////////////////////////////////////////////////
+
+
+
+typedef struct __nn_plate_detect
+{
+    unsigned int   detNum;
+    float score;
+    detBox pBox[MAX_DETECT_NUM];
+    point_t pos[MAX_DETECT_NUM][4];
+}plate_det_out_t;
+
+typedef struct __nn_plate_recog
+{
+    float *buf;
+}plate_recog_out_t;
 
 typedef struct __nn_person_detect
 {
     unsigned int  detNum;
     detBox pBox[MAX_DETECT_NUM];
 }person_detect_out_t;
+
+typedef struct __nn_aml_person_detect
+{
+    unsigned int  detNum;
+    detBox pBox[MAX_DETECT_NUM];
+}aml_person_detect_out_t;
 
 typedef struct __nn_yoloface_v2
 {
@@ -268,11 +289,42 @@ typedef struct __nn_face_rfb_detect
     detBox facebox[MAX_DETECT_NUM];
     point_t pos[MAX_DETECT_NUM][5];
 }face_rfb_detect_out_t;
-/////////////////////common type//////////////////////
+typedef struct
+{
+    int index;
+    int classId;
+    float probs;
+} face_sortable_bbox;
+typedef struct
+{
+    float f32X1;
+    float f32Y1;
+    float f32X2;
+    float f32Y2;
+}CFaceRect;
+typedef struct
+{
+     float f32X[5];
+     float f32Y[5];
+}CFacePts;
+typedef struct
+{
+    CFaceRect cBox;
+    CFacePts  cPts;
+    float     f32Score;
+}CFaceInfo;
+typedef struct {
+    CFaceRect cBox;
+    CFacePts  cPts;
+    float f32Score;
+    int sort_class;
+}FaceInfo;
+/****************  common type  *****************/
 
 void softmax(float *input, int n, float temp, float *output);
 void flatten(float *x, int size, int layers, int batch, int forward);
 void do_nms_sort(box *boxes, float **probs, int total, int classes, float thresh);
+void do_nms_sort_plate(plate_box *boxes, float probs[][1], int total, int classes, float thresh);
 int nms_comparator(const void *pa, const void *pb);
 float box_iou(box a, box b);
 float box_union(box a, box b);
@@ -285,6 +337,7 @@ void process_top5(float *buf,unsigned int num,img_classify_out_t* clsout);
 void *post_process_all_module(aml_module_t type,nn_output *pOut);
 int max_index(float *a, int n);
 box get_region_box(float *x, float *biases, int n, int index, int i, int j, int w, int h);
+
 
 #ifdef __cplusplus
 } //extern "C"
