@@ -402,7 +402,11 @@ _QueryProcessPageTable(IN gctPOINTER Logical, OUT gctPHYS_ADDR_T *Address)
         /* vmalloc area. */
         *Address = page_to_phys(vmalloc_to_page(Logical)) | offset;
         return gcvSTATUS_OK;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
+    } else if (virt_addr_valid((const void *)logical)) {
+#else
     } else if (virt_addr_valid(logical)) {
+#endif
         /* Kernel logical address. */
         *Address = virt_to_phys(Logical);
         return gcvSTATUS_OK;
@@ -431,7 +435,9 @@ _QueryProcessPageTable(IN gctPOINTER Logical, OUT gctPHYS_ADDR_T *Address)
     } else {
         /* Try user VM area. */
         struct vm_area_struct *vma;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
         spinlock_t            *ptl;
+#    endif
         pgd_t                 *pgd;
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 9, 0)
         p4d_t *p4d;
@@ -475,15 +481,23 @@ _QueryProcessPageTable(IN gctPOINTER Logical, OUT gctPHYS_ADDR_T *Address)
         if (pmd_none(*pmd) || pmd_bad(*pmd))
             return gcvSTATUS_NOT_FOUND;
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
+        pte = pte_offset_kernel(pmd, logical);
+#else
         pte = pte_offset_map_lock(current->mm, pmd, logical, &ptl);
+#endif
 
         if (!pte_present(*pte)) {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
             pte_unmap_unlock(pte, ptl);
+#endif
             return gcvSTATUS_NOT_FOUND;
         }
 
         *Address = (pte_pfn(*pte) << PAGE_SHIFT) | offset;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
         pte_unmap_unlock(pte, ptl);
+#endif
 
         return gcvSTATUS_OK;
     }

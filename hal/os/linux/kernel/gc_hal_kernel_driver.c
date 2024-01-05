@@ -116,8 +116,13 @@ static int findtok(const char *buff,const char token,int lenth)
 }
 
 /*==========================some sysfs functions,class begin===================================*/
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 16, 0)
+static ssize_t show_class_control(const struct class *class,
+		        const struct class_attribute *attr, char *buf)
+#else
 static ssize_t show_class_control(struct class *class,
 		        struct class_attribute *attr, char *buf)
+#endif
 {
 	gctUINT32 status = 0;
 
@@ -131,8 +136,13 @@ static ssize_t show_class_control(struct class *class,
 
 /*============the control format should as: (control-domain:control-value)==========*/
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 16, 0)
+static ssize_t store_class_control(const struct class *class,
+		const struct class_attribute *attr, const char *buf, size_t count)
+#else
 static ssize_t store_class_control(struct class *class,
 		struct class_attribute *attr, const char *buf, size_t count)
+#endif
 {
 	gctUINT32 status = 0;
 	int pos = 0;
@@ -189,22 +199,37 @@ static ssize_t store_class_control(struct class *class,
 	return count;
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 16, 0)
+static ssize_t show_class_policy(const struct class *class,
+		        const struct class_attribute *attr, char *buf)
+#else
 static ssize_t show_class_policy(struct class *class,
 		        struct class_attribute *attr, char *buf)
+#endif
 {
 	return snprintf(buf, PAGE_SIZE, "policy read,just for test\n");
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 16, 0)
+static ssize_t store_class_policy(const struct class *class,
+		const struct class_attribute *attr, const char *buf, size_t count)
+#else
 static ssize_t store_class_policy(struct class *class,
 		struct class_attribute *attr, const char *buf, size_t count)
+#endif
 {
 	ssize_t ret = 0;
 	printk("store_policy,%s\n",buf);
 	return ret;
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 16, 0)
+static ssize_t show_class_status(const struct class *class,
+		        const struct class_attribute *attr, char *buf)
+#else
 static ssize_t show_class_status(struct class *class,
 		        struct class_attribute *attr, char *buf)
+#endif
 {
 	gctUINT32 status = 0;
 	if(platform->ops->getPowerStatus)
@@ -214,22 +239,37 @@ static ssize_t show_class_status(struct class *class,
 	return snprintf(buf, PAGE_SIZE, "status:%d",status);
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 16, 0)
+static ssize_t store_class_status(const struct class *class,
+		const struct class_attribute *attr, const char *buf, size_t count)
+#else
 static ssize_t store_class_status(struct class *class,
 		struct class_attribute *attr, const char *buf, size_t count)
+#endif
 {
 	ssize_t ret = 0;
 	printk("store_status,%s\n",buf);
 	return ret;
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 16, 0)
+static ssize_t show_class_info(const struct class *class,
+		        const struct class_attribute *attr, char *buf)
+#else
 static ssize_t show_class_info(struct class *class,
 		        struct class_attribute *attr, char *buf)
+#endif
 {
 	return snprintf(buf, PAGE_SIZE, "info read,just for test\n");
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 16, 0)
+static ssize_t store_class_info(const struct class *class,
+		const struct class_attribute *attr, const char *buf, size_t count)
+#else
 static ssize_t store_class_info(struct class *class,
 		struct class_attribute *attr, const char *buf, size_t count)
+#endif
 {
 	ssize_t ret = 0;
 	printk("store_info,%s\n",buf);
@@ -1089,7 +1129,11 @@ static int drv_init(void)
             major = result;
 
         /* Create the device class. */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 16, 0)
+        device_class = class_create("npu");
+#else
         device_class = class_create(THIS_MODULE, "npu");
+#endif
 
         if (IS_ERR(device_class)) {
             gcmkTRACE_ZONE(gcvLEVEL_ERROR, gcvZONE_DRIVER,

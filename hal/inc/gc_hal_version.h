@@ -22,7 +22,7 @@
 
 #define gcvVERSION_BUILD     505228
 
-#define gcvVERSION_STRING    "6.4.11.2.1.1.1"
+#define gcvVERSION_STRING    "6.4.11.2.1.1.2"
 
 #endif /* __gc_hal_version_h_ */
 

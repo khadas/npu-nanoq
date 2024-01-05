@@ -232,7 +232,13 @@ import_page_map(gckOS           Os,
 #else
                             (flags & VM_WRITE) ? 1 : 0, 0,
 #endif
-                            pages, NULL);
+
+#if LINUX_VERSION_CODE > KERNEL_VERSION(5, 16, 0)
+                            pages
+#else
+                            pages, NULL
+#endif
+                                       );
 
     up_read(&current_mm_mmap_sem);
 
@@ -358,7 +364,9 @@ import_pfn_map(gckOS Os, struct device *dev, struct um_desc *um,
         }
 #else
         /* protect pfns[i] */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
         spinlock_t  *ptl;
+#endif
         pgd_t       *pgd;
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 9, 0)
         p4d_t       *p4d;
@@ -391,15 +399,24 @@ import_pfn_map(gckOS Os, struct device *dev, struct um_desc *um,
         if (pmd_none(*pmd) || pmd_bad(*pmd))
             goto err;
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
+        pte = pte_offset_kernel(pmd, addr);
+#else
         pte = pte_offset_map_lock(current->mm, pmd, addr, &ptl);
+#endif
 
         if (!pte_present(*pte)) {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
             pte_unmap_unlock(pte, ptl);
+#endif
             goto err;
         }
 
         pfns[i] = pte_pfn(*pte);
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
         pte_unmap_unlock(pte, ptl);
+#endif
+
 #endif
         /* Advance to next. */
         addr += PAGE_SIZE;
