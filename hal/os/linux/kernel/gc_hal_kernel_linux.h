@@ -328,8 +328,13 @@ _ConvertLogical2Physical(IN gckOS           Os,
                          IN PLINUX_MDL      Mdl,
                          OUT gctPHYS_ADDR_T *Physical);
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
+gceSTATUS
+_QuerySignal(IN gckOS Os, IN gctSIGNAL Signal);
+#else
 gctBOOL
 _QuerySignal(IN gckOS Os, IN gctSIGNAL Signal);
+#endif
 
 static inline gctINT
 _GetProcessID(void)
